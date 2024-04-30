@@ -326,9 +326,9 @@ public class ServiceCustomer {
         r.close();
     }
 
-    //update thành tiền trong bảng cthd
+        //update thành tiền trong bảng cthd
     public void updateThanhTien(int ID_HoaDon) throws SQLException {
-    String sql = "UPDATE CTHD c " +
+       String sql = "UPDATE CTHD c " +
                  "JOIN MonAn m ON c.ID_MonAn = m.ID_MonAn " +
                  "SET c.Thanhtien = c.SoLuong * m.Dongia " +
                  "WHERE c.ID_HoaDon = ?";
@@ -337,16 +337,27 @@ public class ServiceCustomer {
     p.executeUpdate();
     p.close();
     }
-    //update tổng tiền trong bản hoadon
+    //update tiền món ăn
+    public void updateTienMonAn(int ID_HoaDon) throws SQLException {
+    String sql = "UPDATE HoaDon h " +
+                    "JOIN (SELECT ID_HoaDon, SUM(Thanhtien) AS TongThanhTien FROM CTHD WHERE ID_HoaDon = ? GROUP BY ID_HoaDon) c " +
+                    "ON h.ID_HoaDon = c.ID_HoaDon " +
+                    "SET h.TienMonAn = c.TongThanhTien " +
+                    "WHERE h.ID_HoaDon = ?";
+       PreparedStatement p = con.prepareStatement(sql);
+       p.setInt(1, ID_HoaDon);
+       p.setInt(2, ID_HoaDon);
+       p.executeUpdate();
+       p.close();
+    }
+    
+    //update tổng tiền
     public void updateTongTien(int ID_HoaDon) throws SQLException {
     String sql = "UPDATE HoaDon h " +
-                 "JOIN (SELECT ID_HoaDon, SUM(Thanhtien) AS TongThanhTien FROM CTHD WHERE ID_HoaDon = ? GROUP BY ID_HoaDon) c " +
-                 "ON h.ID_HoaDon = c.ID_HoaDon " +
-                 "SET h.TienMonAn = c.TongThanhTien " +
+                 "SET h.Tongtien = h.TienMonAn-h.TienGiam " +
                  "WHERE h.ID_HoaDon = ?";
     PreparedStatement p = con.prepareStatement(sql);
     p.setInt(1, ID_HoaDon);
-    p.setInt(2, ID_HoaDon);
     p.executeUpdate();
     p.close();
     }

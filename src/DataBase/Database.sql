@@ -223,6 +223,101 @@ CREATE TABLE CTXK(
 
 --- Tao Trigger
 
+-- trigger update doanh số và điêm tích lũy
+DELIMITER //
+
+CREATE TRIGGER Tg_KH_DoanhsovaDTL AFTER UPDATE ON HoaDon 
+FOR EACH ROW 
+BEGIN 
+    IF NEW.Trangthai = 'Da thanh toan' THEN 
+        UPDATE KhachHang 
+        SET Doanhso = Doanhso + NEW.Tongtien, 
+            Diemtichluy = Diemtichluy + ROUND(NEW.Tongtien * 0.00005) 
+        WHERE ID_KH = NEW.ID_KH; 
+    END IF; 
+END;
+//
+
+DELIMITER ;
+
+-- trigger update tiền trong hóa đơn khi áp dụng voucher
+DELIMITER //
+
+CREATE TRIGGER Tg_HD_DoiVoucher BEFORE UPDATE ON HoaDon
+FOR EACH ROW
+BEGIN
+    DECLARE TongtienLoaiMonAnduocgiam DECIMAL(8,0);
+    DECLARE v_Diemdoi INT;
+    DECLARE v_Phantram DECIMAL(5,2);
+    DECLARE v_LoaiMA VARCHAR(50);
+    
+    IF NEW.Code_Voucher IS NOT NULL THEN
+        SELECT Diem, Phantram, LoaiMA INTO v_Diemdoi, v_Phantram, v_LoaiMA
+        FROM Voucher
+        WHERE Code_Voucher = NEW.Code_Voucher;
+        
+        CALL KH_TruDTL(NEW.ID_KH, v_Diemdoi);
+        CALL Voucher_GiamSL(NEW.Code_Voucher);
+        
+        IF v_LoaiMA = 'All' THEN
+            SET TongtienLoaiMonAnduocgiam = NEW.TienMonAn;
+        ELSE
+            SELECT SUM(Thanhtien) INTO TongtienLoaiMonAnduocgiam
+            FROM CTHD
+            JOIN MonAn ON MonAn.ID_MonAn = CTHD.ID_MonAn
+            WHERE ID_HoaDon = NEW.ID_HoaDon AND LOAI = v_LoaiMA;
+        END IF;
+        
+        SET NEW.Tiengiam = ROUND(TongtienLoaiMonAnduocgiam * v_Phantram / 100);
+        SET NEW.Tongtien = NEW.Tienmonan - NEW.Tiengiam;
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Voucher khong ton tai';
+    END IF;
+END;
+//
+
+DELIMITER ;
+
+-- PROCEDURE trừ đi số điểm tích lũy của khi khách hàng sử dụng voucher
+DELIMITER //
+
+CREATE PROCEDURE KH_TruDTL(IN p_ID INT, IN p_diemdoi INT)
+BEGIN
+    DECLARE v_count INT;
+    
+    SELECT COUNT(*) INTO v_count
+    FROM KHACHHANG
+    WHERE ID_KH = p_ID;
+    
+    IF v_count > 0 THEN
+        UPDATE KHACHHANG SET Diemtichluy = Diemtichluy - p_diemdoi WHERE ID_KH = p_ID;
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Khach hang khong ton tai';
+    END IF;
+END //
+
+DELIMITER ;
+
+-- PROCEDURE trừ đi số lượng của voucher khi khách hàng sử dụng
+DELIMITER //
+
+CREATE PROCEDURE Voucher_GiamSL(IN p_code VARCHAR(255))
+BEGIN
+    DECLARE v_count INT;
+    
+    SELECT COUNT(*) INTO v_count
+    FROM Voucher
+    WHERE Code_Voucher = p_code;
+    
+    IF v_count > 0 THEN
+        UPDATE Voucher SET SoLuong = SoLuong - 1 WHERE Code_Voucher = p_code;
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Voucher khong ton tai';
+    END IF;
+END //
+
+DELIMITER ;
+
 --Khach hang chi duoc co toi da mot hoa don co trang thai Chua thanh toan
 CREATE OR REPLACE TRIGGER Tg_SLHD_CTT
 BEFORE INSERT OR UPDATE OF ID_KH,TrangThai ON HoaDon
@@ -240,40 +335,8 @@ BEGIN
     END IF;
 END;
 /
---  Trigger Thanh tien o CTHD bang SoLuong x Dongia cua mon an do
 
-CREATE OR REPLACE TRIGGER Tg_CTHD_Thanhtien
-BEFORE INSERT OR UPDATE OF SoLuong ON CTHD
-FOR EACH ROW
-DECLARE 
-    gia MonAn.DonGia%TYPE;
-BEGIN
-    SELECT DonGia
-    INTO gia
-    FROM MonAn
-    WHERE MonAn.ID_MonAn = :new.ID_MonAn;
-    
-    :new.ThanhTien := :new.SoLuong * gia;
-END;
-/
---- Trigger Tien mon an o Hoa Don bang tong thanh tien o CTHD
-CREATE OR REPLACE TRIGGER Tg_HD_TienMonAn
-AFTER INSERT OR UPDATE OR DELETE ON CTHD
-FOR EACH ROW
-BEGIN
-    IF INSERTING THEN    
-        UPDATE HoaDon SET TienMonAn = TienMonAn + :new.ThanhTien WHERE HoaDon.ID_HoaDon=:new.ID_HoaDon;
-    END IF;
-    
-    IF UPDATING THEN    
-        UPDATE HoaDon SET TienMonAn = TienMonAn + :new.ThanhTien - :old.ThanhTien WHERE HoaDon.ID_HoaDon=:new.ID_HoaDon;
-    END IF;
-    
-    IF DELETING THEN    
-        UPDATE HoaDon SET TienMonAn = TienMonAn - :old.ThanhTien WHERE HoaDon.ID_HoaDon=:old.ID_HoaDon;
-    END IF;
-END;
-/
+
 --Trigger Tien giam o Hoa Don = tong thanh tien cua mon An duoc giam  x Phantram
 CREATE OR REPLACE TRIGGER Tg_HD_TienGiam
 AFTER INSERT OR UPDATE OR DELETE ON CTHD
@@ -328,75 +391,24 @@ BEGIN
     END IF;
 END;
 /
--- Tong tien o Hoa Don = Tien mon an - Tien giam
-CREATE OR REPLACE TRIGGER Tg_HD_Tongtien
-AFTER INSERT OR UPDATE OF TienMonAn,TienGiam ON HoaDon
-BEGIN
-    UPDATE HoaDon SET Tongtien= TienMonAn - TienGiam;
-END;
-/
--- Khi cap nhat Code_Voucher o HoaDon, Tinh tien giam theo thong tin cua Voucher do va giam Diem tich luy cua KH
-CREATE OR REPLACE TRIGGER Tg_HD_DoiVoucher
-BEFORE UPDATE OF Code_Voucher ON HoaDon
+
+
+
+--  Trigger Thanh tien o CTNK bang SoLuong x Dongia cua nguyen lieu do
+
+CREATE OR REPLACE TRIGGER Tg_CTNK_Thanhtien
+BEFORE INSERT OR UPDATE OF SoLuong ON CTNK
 FOR EACH ROW
 DECLARE 
-    TongtienLoaiMonAnduocgiam number(8,0);
-    v_Diemdoi number;
-    v_Phantram number;
-    v_LoaiMA Voucher.LoaiMA%TYPE;
+    gia NguyenLieu.DonGia%TYPE;
 BEGIN
-    IF(:new.Code_Voucher is not null) THEN
-        SELECT Diem,Phantram,LoaiMA
-        INTO v_Diemdoi,v_Phantram,v_LoaiMA
-        FROM Voucher
-        WHERE Code_Voucher=:new.Code_Voucher;
-        
-        KH_TruDTL(:new.ID_KH,v_diemdoi);
-        Voucher_GiamSL(:new.Code_Voucher);
-        
-        IF(v_LoaiMA='All') THEN
-            TongtienLoaiMonAnduocgiam := :new.TienMonAn;
-        ELSE 
-            SELECT SUM(Thanhtien)
-            INTO TongtienLoaiMonAnduocgiam
-            FROM CTHD 
-            JOIN MonAn ON MonAn.ID_MonAn = CTHD.ID_MonAn
-            WHERE ID_HoaDon = :new.ID_HoaDon AND LOAI = v_LoaiMA;
-        END IF;
-        
-        :new.Tiengiam := ROUND(TongtienLoaiMonAnduocgiam*v_Phantram/100);
-        :new.Tongtien := :new.Tienmonan-:new.Tiengiam;
-    ELSE
-        RAISE_APPLICATION_ERROR(-20000,'Voucher khong ton tai');
-    END IF;
-END;
-/
---Trigger Doanh so cua Khach hang bang tong tien cua tat ca hoa don co trang thai 'Da thanh toan' 
---cua khach hang do
--- Diem tich luy cua Khach hang duoc tinh bang 0.005% Tong tien cua hoa don (1.000.000d tuong duong 50 diem)
-CREATE OR REPLACE TRIGGER Tg_KH_DoanhsovaDTL
-AFTER UPDATE OF Trangthai ON HoaDon
-FOR EACH ROW
-BEGIN
-    IF :new.Trangthai='Da thanh toan' THEN
-        UPDATE KhachHang SET Doanhso = Doanhso + :new.Tongtien WHERE ID_KH=:new.ID_KH;
-        UPDATE KhachHang SET Diemtichluy = Diemtichluy + ROUND(:new.Tongtien*0.00005)
-        WHERE ID_KH=:new.ID_KH;
-    END IF;
-END;
-/
---Trigger khi khach hang them hoa don moi, trang thai ban chuyen tu 'Con trong' sang 'Dang dung bua'
--- Khi trang thai don hang tro thanh 'Da thanh toan' trang thai ban chuyen tu 'Dang dung bua' sang 'Con trong'
-
-CREATE OR REPLACE TRIGGER Tg_TrangthaiBan
-AFTER INSERT OR UPDATE OF Trangthai ON HoaDon
-FOR EACH ROW
-BEGIN
-    IF(:new.Trangthai='Chua thanh toan') THEN 
-        UPDATE Ban SET Trangthai='Dang dung bua' WHERE ID_Ban=:new.ID_Ban;
-    ELSE 
-        UPDATE Ban SET Trangthai='Con trong' WHERE ID_Ban=:new.ID_Ban;
-    END IF; 
+    SELECT DonGia
+    INTO gia
+    FROM NguyenLieu
+    WHERE NguyenLieu.ID_NL = :new.ID_NL;
+    
+    :new.ThanhTien := :new.SoLuong * gia;
+    
 END;
 /
 --  Trigger Thanh tien o CTNK bang SoLuong x Dongia cua nguyen lieu do

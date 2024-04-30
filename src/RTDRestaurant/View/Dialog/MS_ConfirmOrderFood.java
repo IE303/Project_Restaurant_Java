@@ -66,6 +66,7 @@ public class MS_ConfirmOrderFood extends javax.swing.JDialog {
                 try {
                     service.InsertCTHD(ID_HoaDon, monan.getId(), soluong);
                     service.updateThanhTien(ID_HoaDon);
+                    service.updateTienMonAn(ID_HoaDon);
                     service.updateTongTien(ID_HoaDon);
                     service.setTableOrdingFood(ID_HoaDon);
                 } catch (SQLException ex) {
