@@ -151,7 +151,7 @@ public class ServiceStaff {
     //Lấy toàn bộ danh sách Phiếu nhập kho
     public ArrayList<ModelPNK> MenuPNK() throws SQLException {
         ArrayList<ModelPNK> list = new ArrayList<>();
-        String sql = "SELECT ID_NK,ID_NV,DATE_FORMAT(NgayVL, '%d-%m-%Y') AS Ngay,Tongtien FROM PhieuNK ORDER BY ID_NK";
+        String sql = "SELECT ID_NK,ID_NV,DATE_FORMAT(NgayNK, '%d-%m-%Y') AS Ngay,Tongtien FROM PhieuNK ORDER BY ID_NK";
         PreparedStatement p = con.prepareStatement(sql);
         ResultSet r = p.executeQuery();
         while (r.next()) {
@@ -170,7 +170,7 @@ public class ServiceStaff {
     //Lấy thông tin của Phiếu nhập kho theo ID
     public ModelPNK getPNKbyID(int id) throws SQLException {
         ModelPNK data = null;
-        String sql = "SELECT ID_NK,ID_NV,DATE_FORMAT(NgayVL, '%d-%m-%Y') AS Ngay,Tongtien FROM PhieuNK WHERE ID_NK=?";
+        String sql = "SELECT ID_NK,ID_NV,DATE_FORMAT(NgayNK, '%d-%m-%Y') AS Ngay,Tongtien FROM PhieuNK WHERE ID_NK=?";
         PreparedStatement p = con.prepareStatement(sql);
         p.setInt(1, id);
         ResultSet r = p.executeQuery();
@@ -188,19 +188,20 @@ public class ServiceStaff {
 
     //Lấy tổng tiền nhập trong ngày hiện tại
     public int getTongtienNK() throws SQLException {
-        int tongtien = 0;
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-YYYY");
-        String sql = "SELECT SUM(Tongtien) FROM PhieuNK WHERE NgayNK=to_date(?, 'dd-mm-yyyy')";
-        PreparedStatement p = con.prepareStatement(sql);
-        p.setString(1, simpleDateFormat.format(new Date()));
-        ResultSet r = p.executeQuery();
-        while (r.next()) {
-            tongtien = r.getInt(1);
-        }
-        r.close();
-        p.close();
-        return tongtien;
+    int tongtien = 0;
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+    String sql = "SELECT SUM(Tongtien) FROM PhieuNK WHERE NgayNK = DATE_FORMAT(?, '%d-%m-%Y')";
+    PreparedStatement p = con.prepareStatement(sql);
+    p.setString(1, simpleDateFormat.format(new Date()));
+    ResultSet r = p.executeQuery();
+    while (r.next()) {
+        tongtien = r.getInt(1);
     }
+    r.close();
+    p.close();
+    return tongtien;
+}
+
 
     //Lấy danh sách chi tiết nhập kho theo mã nhập kho
     public ArrayList<ModelCTNK> getCTNK(int idnk) throws SQLException {
@@ -228,7 +229,7 @@ public class ServiceStaff {
     //Lấy toàn bộ danh sách Phiếu xuất kho
     public ArrayList<ModelPXK> MenuPXK() throws SQLException {
         ArrayList<ModelPXK> list = new ArrayList<>();
-        String sql = "SELECT ID_XK,ID_NV,DATE_FORMAT(NgayVL, '%d-%m-%Y') AS Ngay FROM PhieuXK ORDER BY ID_XK";
+        String sql = "SELECT ID_XK,ID_NV,DATE_FORMAT(NgayXK, '%d-%m-%Y') AS Ngay FROM PhieuXK ORDER BY ID_XK";
         PreparedStatement p = con.prepareStatement(sql);
         ResultSet r = p.executeQuery();
         while (r.next()) {
@@ -246,7 +247,7 @@ public class ServiceStaff {
     //Lấy thông tin của Phiếu xuất kho theo ID
     public ModelPXK getPXKbyID(int id) throws SQLException {
         ModelPXK data = null;
-        String sql = "SELECT ID_XK,ID_NV,DATE_FORMAT(NgayVL, '%d-%m-%Y') AS Ngay FROM PhieuXK WHERE ID_XK=?";
+        String sql = "SELECT ID_XK,ID_NV,DATE_FORMAT(NgayXK, '%d-%m-%Y') AS Ngay FROM PhieuXK WHERE ID_XK=?";
         PreparedStatement p = con.prepareStatement(sql);
         p.setInt(1, id);
         ResultSet r = p.executeQuery();
@@ -265,7 +266,7 @@ public class ServiceStaff {
     public int getSLPXK() throws SQLException {
         int sl = 0;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-YYYY");
-        String sql = "SELECT COUNT(*) FROM PhieuXK WHERE NgayXK=to_date(?, 'dd-mm-yyyy')";
+        String sql = "SELECT COUNT(*) FROM PhieuXK WHERE NgayXK = DATE_FORMAT(?, '%d-%m-%Y')";
         PreparedStatement p = con.prepareStatement(sql);
         p.setString(1, simpleDateFormat.format(new Date()));
         ResultSet r = p.executeQuery();
@@ -346,33 +347,40 @@ public class ServiceStaff {
     }
 
     //Lấy ID của Phiếu xuất kho tiếp theo được thêm
-    public int getNextID_XK() throws SQLException {
-        int nextID = 0;
-        String sql = "SELECT MAX(ID_XK) as ID FROM PhieuXK";
-        PreparedStatement p = con.prepareStatement(sql);
-        ResultSet r = p.executeQuery();
-        while (r.next()) {
-            nextID = r.getInt("ID") + 1;
+        public int getNextID_XK() throws SQLException {
+            int nextID = 0;
+            String sql = "SELECT MAX(ID_XK) as ID FROM PhieuXK";
+            PreparedStatement p = con.prepareStatement(sql);
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
+                nextID = r.getInt("ID") + 1;
+            }
+            r.close();
+            p.close();
+            return nextID;
         }
-        r.close();
-        p.close();
-        return nextID;
-    }
 
-    //Thêm phiếu nhập kho và chi tiết Nhập kho
-    public void InsertPNK_CTNK(ModelPNK pnk, ArrayList<ModelKho> list) throws SQLException {
-        //Thêm phiếu nhập kho
-        String sql = "INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (?,?,to_date(?, 'dd-mm-yyyy'))";
+        //Thêm phiếu nhập kho và chi tiết Nhập kho
+        public void InsertPNK_CTNK(ModelPNK pnk, ArrayList<ModelKho> list) throws SQLException {
+        // Thêm phiếu nhập kho
+        String sql = "INSERT INTO PhieuNK(ID_NK, ID_NV, NgayNK) VALUES (?, ?, ?)";
         PreparedStatement p = con.prepareStatement(sql);
         p.setInt(1, pnk.getIdNK());
         p.setInt(2, pnk.getIdNV());
-        p.setString(3, pnk.getNgayNK());
+
+        // Convert the date to the 'YYYY-MM-dd' format
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        java.util.Date date = new java.util.Date();
+        String formattedDate = sdf.format(date);
+        p.setString(3, formattedDate);
+
         p.execute();
-        //Thêm chi tiết nhập kho
+
+        // Thêm chi tiết nhập kho
         String sql_ct;
         for (ModelKho data : list) {
             if (data.getSlTon() > 0) {
-                sql_ct = "INSERT INTO CTNK(ID_NK,ID_NL,SoLuong) VALUES (?,?,?)";
+                sql_ct = "INSERT INTO CTNK(ID_NK, ID_NL, SoLuong) VALUES (?, ?, ?)";
                 PreparedStatement p_ct = con.prepareStatement(sql_ct);
                 p_ct.setInt(1, pnk.getIdNK());
                 p_ct.setInt(2, data.getIdNL());
@@ -384,10 +392,11 @@ public class ServiceStaff {
         p.close();
     }
 
+
     //Thêm phiếu xuất kho và chi tiết Xuất kho
     public void InsertPXK_CTXK(ModelPXK pxk, ArrayList<ModelKho> list) throws SQLException {
         //Thêm phiếu nhập kho
-        String sql = "INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (?,?,to_date(?, 'dd-mm-yyyy'))";
+        String sql = "INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (?,?,DATE_FORMAT(?, '%d-%m-%Y'))";
         PreparedStatement p = con.prepareStatement(sql);
         p.setInt(1, pxk.getIdXK());
         p.setInt(2, pxk.getIdNV());
