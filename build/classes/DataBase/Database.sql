@@ -75,11 +75,23 @@ CREATE TABLE MonAn(
     TrangThai VARCHAR(30),
     CONSTRAINT MA_TenMon_NNULL CHECK (TenMon IS NOT NULL),
     CONSTRAINT MA_DonGia_NNULL CHECK (DonGia IS NOT NULL),
-    CONSTRAINT MA_Loai_Ten CHECK (Loai IN ('Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces')),
+    CONSTRAINT MA_Loai_Ten CHECK (Loai IN ('Sashimi','Salad','Món hấp và súp','Sushi','Món khai vị','Cơm cuộn')),
     CONSTRAINT MA_TrangThai_Thuoc CHECK (TrangThai IN ('Dang kinh doanh','Ngung kinh doanh')),
     PRIMARY KEY (ID_MonAn)
 );
-select * from monan;
+
+ALTER TABLE MonAn 
+ADD CONSTRAINT MA_Loai_Ten
+CHECK (Loai IN ('Sashimi','Salad','MonHapSup','Sushi','KhaiVi','ComCuon'));
+
+ALTER TABLE MonAn 
+DROP CONSTRAINT MA_Loai_Ten;
+select * from nguoidung;
+
+SET SQL_SAFE_UPDATES = 0;
+UPDATE MonAn SET Loai = 'MonHapSup' WHERE Loai = 'Món hấp và súp';
+UPDATE MonAn SET Loai = 'KhaiVi' WHERE Loai = 'Món khai vị';
+UPDATE MonAn SET Loai = 'ComCuon' WHERE Loai = 'Cơm cuộn';
 -- Create table Ban
 CREATE TABLE Ban(
     ID_Ban INT(8),
@@ -336,7 +348,7 @@ BEGIN
 END;
 /
 
-
+    
 --Trigger Tien giam o Hoa Don = tong thanh tien cua mon An duoc giam  x Phantram
 CREATE OR REPLACE TRIGGER Tg_HD_TienGiam
 AFTER INSERT OR UPDATE OR DELETE ON CTHD
@@ -391,9 +403,9 @@ BEGIN
     END IF;
 END;
 /
-
-
-
+        
+        
+        
 --  Trigger Thanh tien o CTNK bang SoLuong x Dongia cua nguyen lieu do
 
 CREATE OR REPLACE TRIGGER Tg_CTNK_Thanhtien
@@ -406,7 +418,7 @@ BEGIN
     INTO gia
     FROM NguyenLieu
     WHERE NguyenLieu.ID_NL = :new.ID_NL;
-    
+
     :new.ThanhTien := :new.SoLuong * gia;
     
 END;
@@ -808,7 +820,7 @@ BEGIN
 END;
 /
     
---Fuction Tinh tien mon an duoc giam khi them mot CTHD moi
+-- Fuction Tinh tien mon an duoc giam khi them mot CTHD moi
 CREATE OR REPLACE FUNCTION CTHD_Tinhtiengiam(Tongtien Number,Code Voucher.Code_Voucher%TYPE)
 RETURN NUMBER
 IS 
@@ -823,15 +835,16 @@ BEGIN
     RETURN Tiengiam;
 END;
 /
---Them data
+-- Them data
 ALTER SESSION SET NLS_DATE_FORMAT = 'dd-MM-YYYY';
---Them data cho Bang NguoiDung
---Nhan vien
+use DB_RestaurantManagement;
+-- Them data cho Bang NguoiDung
+-- Nhan vien
 INSERT INTO NguoiDung(ID_ND,Email,MatKhau,Trangthai,Vaitro) VALUES (100,'NVHoangViet@gmail.com','123','Verified','Quan Ly');
 INSERT INTO NguoiDung(ID_ND,Email,MatKhau,Trangthai,Vaitro) VALUES (101,'NVHoangPhuc@gmail.com','123','Verified','Nhan Vien');
 INSERT INTO NguoiDung(ID_ND,Email,MatKhau,Trangthai,Vaitro) VALUES (102,'NVAnhHong@gmail.com','123','Verified','Nhan Vien Kho');
 INSERT INTO NguoiDung(ID_ND,Email,MatKhau,Trangthai,Vaitro) VALUES (103,'NVQuangDinh@gmail.com','123','Verified','Nhan Vien');
---Khach Hang
+-- Khach Hang
 INSERT INTO NguoiDung(ID_ND,Email,MatKhau,Trangthai,Vaitro) VALUES (104,'KHThaoDuong@gmail.com','123','Verified','Khach Hang');
 INSERT INTO NguoiDung(ID_ND,Email,MatKhau,Trangthai,Vaitro) VALUES (105,'KHTanHieu@gmail.com','123','Verified','Khach Hang');
 INSERT INTO NguoiDung(ID_ND,Email,MatKhau,Trangthai,Vaitro) VALUES (106,'KHQuocThinh@gmail.com','123','Verified','Khach Hang');
@@ -843,149 +856,137 @@ INSERT INTO NguoiDung(ID_ND,Email,MatKhau,Trangthai,Vaitro) VALUES (111,'KHThanh
 INSERT INTO NguoiDung(ID_ND,Email,MatKhau,Trangthai,Vaitro) VALUES (112,'KHThanhNhan@gmail.com','123','Verified','Khach Hang');
 INSERT INTO NguoiDung(ID_ND,Email,MatKhau,Trangthai,Vaitro) VALUES (113,'KHPhucNguyen@gmail.com','123','Verified','Khach Hang');
 
---Them data cho bang Nhan Vien
+-- Them data cho bang Nhan Vien
 ALTER SESSION SET NLS_DATE_FORMAT = 'dd-MM-YYYY';
---Co tai khoan
-INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_ND,ID_NQL,Tinhtrang) VALUES (100,'Nguyen Hoang Viet','10/05/2023','0848044725','Quan ly',100,100,'Dang lam viec');
-INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_ND,ID_NQL,Tinhtrang) VALUES (101,'Nguyen Hoang Phuc','20/05/2023','0838033334','Tiep tan',101,100,'Dang lam viec');
-INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_ND,ID_NQL,Tinhtrang) VALUES (102,'Le Thi Anh Hong','19/05/2023','0838033234','Kho',102,100,'Dang lam viec');
-INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_ND,ID_NQL,Tinhtrang) VALUES (103,'Ho Quang Dinh','19/05/2023','0838033234','Tiep tan',103,100,'Dang lam viec');
---Khong co tai khoan
-INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_NQL,Tinhtrang) VALUES (104,'Ha Thao Duong','10/05/2023','0838033232','Phuc vu',100,'Dang lam viec');
-INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_NQL,Tinhtrang) VALUES (105,'Nguyen Quoc Thinh','11/05/2023','0838033734','Phuc vu',100,'Dang lam viec');
-INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_NQL,Tinhtrang) VALUES (106,'Truong Tan Hieu','12/05/2023','0838033834','Phuc vu',100,'Dang lam viec');
-INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_NQL,Tinhtrang) VALUES (107,'Nguyen Thai Bao','10/05/2023','0838093234','Phuc vu',100,'Dang lam viec');
-INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_NQL,Tinhtrang) VALUES (108,'Tran Nhat Khang','11/05/2023','0838133234','Thu ngan',100,'Dang lam viec');
-INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_NQL,Tinhtrang) VALUES (109,'Nguyen Ngoc Luong','12/05/2023','0834033234','Bep',100,'Dang lam viec');
+-- Co tai khoan
+INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_ND,ID_NQL,Tinhtrang) VALUES (100,'Nguyen Hoang Viet','2023-05-10','0848044725','Quan ly',100,100,'Dang lam viec');
+INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_ND,ID_NQL,Tinhtrang) VALUES (101,'Nguyen Hoang Phuc','2023-05-20','0838033334','Tiep tan',101,100,'Dang lam viec');
+INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_ND,ID_NQL,Tinhtrang) VALUES (102,'Le Thi Anh Hong','2023-05-19','0838033234','Kho',102,100,'Dang lam viec');
+INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_ND,ID_NQL,Tinhtrang) VALUES (103,'Ho Quang Dinh','2023-05-19','0838033234','Tiep tan',103,100,'Dang lam viec');
+-- Khong co tai khoan
+INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_NQL,Tinhtrang) VALUES (104,'Ha Thao Duong','2023-05-10','0838033232','Phuc vu',100,'Dang lam viec');
+INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_NQL,Tinhtrang) VALUES (105,'Nguyen Quoc Thinh','2023-05-11','0838033734','Phuc vu',100,'Dang lam viec');
+INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_NQL,Tinhtrang) VALUES (106,'Truong Tan Hieu','2023-05-12','0838033834','Phuc vu',100,'Dang lam viec');
+INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_NQL,Tinhtrang) VALUES (107,'Nguyen Thai Bao','2023-05-10','0838093234','Phuc vu',100,'Dang lam viec');
+INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_NQL,Tinhtrang) VALUES (108,'Tran Nhat Khang','2023-05-11','0838133234','Thu ngan',100,'Dang lam viec');
+INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_NQL,Tinhtrang) VALUES (109,'Nguyen Ngoc Luong','2023-05-12','0834033234','Bep',100,'Dang lam viec');
 
---Them data cho bang KhachHang
-INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (100,'Ha Thao Duong','10/05/2023',104);
-INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (101,'Truong Tan Hieu','10/05/2023',105);
-INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (102,'Nguyen Quoc Thinh','10/05/2023',106);
-INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (103,'Tran Nhu Mai','10/05/2023',107);
-INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (104,'Nguyen Thi Bich Hao','10/05/2023',108);
-INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (105,'Nguyen Mai Quynh','11/05/2023',109);
-INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (106,'Hoang Minh Quang','11/05/2023',110);
-INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (107,'Nguyen Thanh Hang','12/05/2023',111);
-INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (108,'Nguyen Ngoc Thanh Nhan','11/05/2023',112);
-INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (109,'Hoang Thi Phuc Nguyen','12/05/2023',113);
+select*from KhachHang;
+-- Them data cho bang KhachHang
+INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (100,'Ha Thao Duong','2023-05-10',104);
+INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (101,'Truong Tan Hieu','2023-05-10',105);
+INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (102,'Nguyen Quoc Thinh','2023-05-10',106);
+INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (103,'Tran Nhu Mai','2023-05-10',107);
+INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (104,'Nguyen Thi Bich Hao','2023-05-10',108);
+INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (105,'Nguyen Mai Quynh','2023-05-11',109);
+INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (106,'Hoang Minh Quang','2023-05-11',110);
+INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (107,'Nguyen Thanh Hang','2023-05-12',111);
+INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (108,'Nguyen Ngoc Thanh Nhan','2023-05-11',112);
+INSERT INTO KhachHang(ID_KH,TenKH,Ngaythamgia,ID_ND) VALUES (109,'Hoang Thi Phuc Nguyen','2023-05-12',113);
 
---Them data cho bang MonAn
---Aries
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(1,'DUI CUU NUONG XE NHO', 250000,'Aries','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(2,'BE SUON CUU NUONG GIAY BAC MONG CO', 230000,'Aries','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(3,'DUI CUU NUONG TRUNG DONG', 350000,'Aries','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(4,'CUU XOC LA CA RI', 129000,'Aries','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(5,'CUU KUNGBAO', 250000,'Aries','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(6,'BAP CUU NUONG CAY', 250000,'Aries','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(7,'CUU VIEN HAM CAY', 19000,'Aries','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(8,'SUON CONG NUONG MONG CO', 250000,'Aries','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(9,'DUI CUU LON NUONG TAI BAN', 750000,'Aries','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(10,'SUONG CUU NUONG SOT NAM', 450000,'Aries','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(11,'DUI CUU NUONG TIEU XANH', 285000,'Aries','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(12,'SUON CUU SOT PHO MAI', 450000,'Aries','Dang kinh doanh');
+-- Them data cho bang MonAn
+-- Sashimi
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(1,'CUA HOANG DE', 2300000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(2,'SASHIMI BUNG CA HOI', 500000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(3,'SASHIMI CA NGU VAY XANH PHAN LUNG', 590000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(4,'SASHIMI CA HOI', 400000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(5,'SASHIMI OC VOI VOI', 890000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(6,'SASHIMI CA BON', 149000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(7,'SASHIMI BACH TUOT', 950000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(8,'SASHIMI GOSOKU 5 MON', 479000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(9,'SASHIMI TRUNG CA CHUON', 750000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(10,'SASHIMI CA NGU VAY XANH PHAN BUNG', 450000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(11,'SASHIMI TOM HUM', 800000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(12,'HAU SUA MIYAGI NHAT', 350000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(13,'SASHIMI SO DO', 145000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(14,'SASHIMI SO DIEP NHAT', 150000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(15,'SASHIMI TINH HOAN CA TUYET', 1690000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(16,'SASHIMI CA MU NGUYEN CON', 329000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(17,'SASHIMI TRUNG CA HOI', 720000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(18,'TOM HUM ALASKA', 1350000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(19,'SASHIMI CA CAM', 189000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(20,'SASHIMI THUONG HANG TOHOKU', 369000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(21,'SASHIMI HANA', 300000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(22,'SASHIMI CA NGU VAY XANH PHAN BUNG IT BEO', 590000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(23,'SASHIMI CA TRICH EP TRUNG', 450000,'Sashimi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(24,'SASHIMI BAO NGU', 450000,'Sashimi','Dang kinh doanh');
 
---Taurus
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(13,'Bit tet bo My khoai tay', 179000,'Taurus','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(14,'Bo bit tet Uc',169000,'Taurus','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(15,'Bit tet bo My BASIC', 179000,'Taurus','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(16,'My Y bo bam', 169000,'Taurus','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(17,'Thit suon Wagyu', 1180000,'Taurus','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(18,'Steak Thit Vai Wagyu', 1290000,'Taurus','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(19,'Steak Thit Bung Bo', 550000,'Taurus','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(20,'Tomahawk', 2390000,'Taurus','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(21,'Salad Romaine Nuong', 180000,'Taurus','Dang kinh doanh');
+-- Salad
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(25,'SALAD 7 MON', 60000,'Salad','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(26,'SALAD HAI SAN RONG NHO',1320000,'Salad','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(27,'SALAD RONG BIEN VA BO', 179000,'Salad','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(28,'SALAD RONG NHO VA SOT CA CHUA', 169000,'Salad','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(29,'SALAD RONG BIEN TUOI VA TRUNG CUA', 1180000,'Salad','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(30,'SALAD THIT CUA BO', 1290000,'Salad','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(31,'SALAD CA HOI BO VA LONG DO TRUNG GA', 550000,'Salad','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(32,'SALAD CA TUOI', 239000,'Salad','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(33,'SALAD HAI SAN TRAI CAY', 180000,'Salad','Dang kinh doanh');
 
---Gemini
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(22,'Combo Happy', 180000,'Gemini','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(23,'Combo Fantastic', 190000,'Gemini','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(24,'Combo Dreamer', 230000,'Gemini','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(25,'Combo Cupid', 180000,'Gemini','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(26,'Combo Poseidon', 190000,'Gemini','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(27,'Combo LUANG PRABANG', 490000,'Gemini','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(28,'Combo VIENTIANE', 620000,'Gemini','Dang kinh doanh');
+-- Món hấp và súp
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(34,'SUP BAO NGU', 490000,'Món hấp và súp','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(35,'TRUNG HAP PHU SOT CUA', 190000,'Món hấp và súp','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(36,'SUP THANH YEN', 700000,'Món hấp và súp','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(37,'SUP AM TRA KIEU NHAT', 480000,'Món hấp và súp','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(38,'SUP MISO KIEU NHAT', 590000,'Món hấp và súp','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(39,'TRUNG HAP PHU LUON', 250000,'Món hấp và súp','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(40,'SUP NGAO HAI COI', 250000,'Món hấp và súp','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(41,'SUP GA HAM DONG TRUNG HA THAO', 620000,'Món hấp và súp','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(42,'TRUNG HAP', 600000,'Món hấp và súp','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(43,'TRUNG HAP THIT CUA PHU TRUNG CA CHUON', 500000,'Món hấp và súp','Dang kinh doanh');
 
---Cancer
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(29,'Cua KingCrab Duc sot', 3650000,'Cancer','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(30,'Mai Cua KingCrab Topping Pho Mai', 2650000,'Cancer','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(31,'Cua KingCrab sot Tu Xuyen', 2300000,'Cancer','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(32,'Cua KingCrab Nuong Tu Nhien', 2550000,'Cancer','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(33,'Cua KingCrab Nuong Bo Toi', 2650000,'Cancer','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(34,'Com Mai Cua KingCrab Chien', 1850000,'Cancer','Dang kinh doanh');
+UPDATE MonAn
+SET Loai = 'MonHapSup'
+WHERE ID_MonAn in (34,35,36,37,38,39,40,41,42,43) AND Loai = 'Món hấp và súp';
 
---Leo
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(35,'BOSSAM', 650000,'Leo','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(36,'KIMCHI PANCAKE', 350000,'Leo','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(37,'SPICY RICE CAKE', 250000,'Leo','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(38,'SPICY SAUSAGE HOTPOT', 650000,'Leo','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(39,'SPICY PORK', 350000,'Leo','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(40,'MUSHROOM SPICY SILKY TOFU STEW', 350000,'Leo','Dang kinh doanh');
---Virgo
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(41,'Pavlova', 150000,'Virgo','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(42,'Kesutera', 120000,'Virgo','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(43,'Cremeschnitte', 250000,'Virgo','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(44,'Sachertorte', 150000,'Virgo','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(45,'Schwarzwalder Kirschtorte', 250000,'Virgo','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(46,'New York-Style Cheesecake', 250000,'Virgo','Dang kinh doanh');
+-- Sushi
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(44,'SUSHI CA HOI TRON SOT MAYO ', 620000,'Sushi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(45,'SUSHI CA CAM NUONG TAI', 365000,'Sushi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(46,'SUSHI THIT BO WAGYU NHAT', 265000,'Sushi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(47,'SUSHI DAU PHU NGOT', 230000,'Sushi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(48,'SET SUSHI MATSU', 255000,'Sushi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(49,'SUSHI TOM SOT TRUNG CA TUYET', 265000,'Sushi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(50,'SUSHI THANH CUA', 185000,'Sushi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(51,'SUSHI CA MU', 185000,'Sushi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(52,'SUSHI CA HOI PHAN BUNG', 185000,'Sushi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(53,'SUSHI TRUNG CA HOI', 165000,'Sushi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(54,'SUSHI SO DO NHAT', 205000,'Sushi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(55,'SUSHI RONG BIEN', 185000,'Sushi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(56,'SUSHI TOM', 285000,'Sushi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(57,'SUSHI BO', 385000,'Sushi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(58,'SUSHI THIT BO NUONG TAI', 105000,'Sushi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(59,'SUSHI LUON NHAT', 172000,'Sushi','Dang kinh doanh');
 
---Libra
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(47,'Cobb Salad', 150000,'Libra','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(48,'Salad Israeli', 120000,'Libra','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(49,'Salad Dau den', 120000,'Libra','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(50,'Waldorf Salad', 160000,'Libra','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(51,'Salad Gado-Gado', 200000,'Libra','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(52,'Nicoise Salad', 250000,'Libra','Dang kinh doanh');
-
---Scorpio
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(53,'BULGOGI LUNCHBOX', 250000,'Scorpio','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(54,'CHICKEN TERIYAKI LUNCHBOX', 350000,'Scorpio','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(55,'SPICY PORK LUNCHBOX', 350000,'Scorpio','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(56,'TOFU TERIYAKI LUNCHBOX', 250000,'Scorpio','Dang kinh doanh');
-
---Sagittarius
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(57,'Thit ngua do tuoi', 250000,'Sagittarius','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(58,'Steak Thit ngua', 350000,'Sagittarius','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(59,'Thit ngua ban gang', 350000,'Sagittarius','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(60,'Long ngua xao dua', 150000,'Sagittarius','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(61,'Thit ngua xao sa ot', 250000,'Sagittarius','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(62,'Ngua tang', 350000,'Sagittarius','Dang kinh doanh');
-
---Capricorn
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(63,'Thit de xong hoi', 229000,'Capricorn','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(64,'Thit de xao rau ngo', 199000,'Capricorn','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(65,'Thit de nuong tang', 229000,'Capricorn','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(66,'Thit de chao', 199000,'Capricorn','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(67,'Thit de nuong xien', 199000,'Capricorn','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(68,'Nam de nuong/chao', 199000,'Capricorn','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(69,'Thit de xao lan', 19000,'Capricorn','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(70,'Dui de tan thuoc bac', 199000,'Capricorn','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(71,'Canh de ham duong quy', 199000,'Capricorn','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(72,'Chao de dau xanh', 50000,'Capricorn','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(73,'Thit de nhung me', 229000,'Capricorn','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(74,'Lau de nhu', 499000,'Capricorn','Dang kinh doanh');
+-- Món khai vị
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(60,'BACH TUOT SOT WASABI', 650000,'KhaiVi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(61,'BACH QUA NUONG', 350000,'KhaiVi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(62,'DAU NANH NHAT BAN', 250000,'KhaiVi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(63,'KHAI VI 5 MON', 650000,'KhaiVi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(64,'DAU PHU CHIEN KIEU NHAT', 350000,'KhaiVi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(65,'VI CA BIEN NUONG', 750000,'KhaiVi','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(66,'GOI RONG BIEN', 150000,'KhaiVi','Dang kinh doanh');
 
 
---Aquarius
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(75,'SIGNATURE WINE', 3290000,'Aquarius','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(76,'CHILEAN WINE', 3990000,'Aquarius','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(77,'ARGENTINA WINE', 2890000,'Aquarius','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(78,'ITALIAN WINE', 5590000,'Aquarius','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(79,'AMERICAN WINE', 4990000,'Aquarius','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(80,'CLASSIC COCKTAIL', 200000,'Aquarius','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(81,'SIGNATURE COCKTAIL', 250000,'Aquarius','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(82,'MOCKTAIL', 160000,'Aquarius','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(83,'JAPANESE SAKE', 1490000,'Aquarius','Dang kinh doanh');
+-- Cơm cuộn
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(67,'COM CUON BO PHU BO MY', 150000,'ComCuon','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(68,'COM CUON CA HOI VA MUC CHIEN', 120000,'ComCuon','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(69,'COM CUON CA HOI VA THANH LONG', 250000,'ComCuon','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(70,'COM CUON TOM CHIEN PHU LUON NHAT VA BO', 15000,'ComCuon','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(71,'COM CUON TOM PHO MAI DAC BIET', 450000,'ComCuon','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(72,'COM CUON DA CA PHU CA HOI NUONG VA SOT CAY', 550000,'ComCuon','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(73,'COM CUON HAI SAN CHIEN', 300000,'ComCuon','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(74,'COM CUON HOA ANH DAO', 220000,'ComCuon','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(75,'COM CUON TRUNG CHIEN', 185000,'ComCuon','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(76,'COM CUON DUA CHUOT', 165000,'ComCuon','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(77,'COM CUON LUON VA PHO MAI', 470000,'ComCuon','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(78,'COM CUON PHU XOAI', 250000,'ComCuon','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(79,'COM CUON THANH CUA', 420000,'ComCuon','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(80,'COM CUON LUON EP CUA', 380000,'ComCuon','Dang kinh doanh');
+insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(81,'COM EP KHUON CA HOI VA BO', 250000,'ComCuon','Dang kinh doanh');
 
---Pisces
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(84,'Ca Hoi Ngam Tuong', 289000,'Pisces','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(85,'Ca Ngu Ngam Tuong', 289000,'Pisces','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(86,'IKURA:Trung ca hoi', 189000,'Pisces','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(87,'KARIN:Sashimi Ca Ngu', 149000,'Pisces','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(88,'KEIKO:Sashimi Ca Hoi', 199000,'Pisces','Dang kinh doanh');
-insert into MonAn(ID_MonAn,TenMon,Dongia,Loai,TrangThai) values(89,'CHIYO:Sashimi Bung Ca Hoi', 219000,'Pisces','Dang kinh doanh');
 
---Them data cho bang Ban
---Tang 1
+
+-- Them data cho bang Ban
+-- Tang 1
 insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(100,'Ban T1.1','Tang 1','Con trong');
 insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(101,'Ban T1.2','Tang 1','Con trong');
 insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(102,'Ban T1.3','Tang 1','Con trong');
@@ -998,7 +999,7 @@ insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(108,'Ban T1.9','Tang 1','C
 insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(109,'Ban T1.10','Tang 1','Con trong');
 insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(110,'Ban T1.11','Tang 1','Con trong');
 insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(111,'Ban T1.12','Tang 1','Con trong');
---Tang 2
+-- Tang 2
 insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(112,'Ban T2.1','Tang 2','Con trong');
 insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(113,'Ban T2.2','Tang 2','Con trong');
 insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(114,'Ban T2.3','Tang 2','Con trong');
@@ -1011,7 +1012,7 @@ insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(120,'Ban T2.9','Tang 2','C
 insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(121,'Ban T2.10','Tang 2','Con trong');
 insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(122,'Ban T2.11','Tang 2','Con trong');
 insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(123,'Ban T2.12','Tang 2','Con trong');
---Tang 3
+-- Tang 3
 insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(124,'Ban T3.1','Tang 3','Con trong');
 insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(125,'Ban T3.1','Tang 3','Con trong');
 insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(126,'Ban T3.1','Tang 3','Con trong');
@@ -1025,7 +1026,7 @@ insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(133,'Ban T3.1','Tang 3','C
 insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(134,'Ban T3.1','Tang 3','Con trong');
 insert into Ban(ID_Ban,TenBan,Vitri,Trangthai) values(135,'Ban T3.1','Tang 3','Con trong');
 
---Them data cho bang Voucher
+-- Them data cho bang Voucher
 insert into Voucher(Code_Voucher, Phantram,LoaiMA,SoLuong,Diem) values ('loQy','20% off for Aries Menu',20,'Aries',10,200);
 insert into Voucher(Code_Voucher, Phantram,LoaiMA,SoLuong,Diem) values ('pCfI','30% off for Taurus Menu',30,'Taurus',5,300);
 insert into Voucher(Code_Voucher, Phantram,LoaiMA,SoLuong,Diem) values ('pApo','20% off for Gemini Menu',20,'Gemini',10,200);
@@ -1040,31 +1041,32 @@ insert into Voucher(Code_Voucher, Phantram,LoaiMA,SoLuong,Diem) values ('WHLm','
 insert into Voucher(Code_Voucher, Phantram,LoaiMA,SoLuong,Diem) values ('GTsC','20% off for Leo Menu',20,'Leo',0,200);
 
 
---Them data cho bang HoaDon
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (101,100,100,'10-1-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (102,104,102,'15-1-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (103,105,103,'20-1-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (104,101,101,'13-2-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (105,103,120,'12-2-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (106,104,100,'16-3-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (107,107,103,'20-3-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (108,108,101,'10-4-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (109,100,100,'20-4-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (110,103,101,'5-5-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (111,106,102,'10-5-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (112,108,103,'15-5-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (113,106,102,'20-5-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (114,108,103,'5-6-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (115,109,104,'7-6-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (116,100,105,'7-6-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (117,106,106,'10-6-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (118,102,106,'10-2-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (119,103,106,'12-2-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (120,104,106,'10-4-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (121,105,106,'12-4-2023',0,0,'Chua thanh toan');
-INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (122,107,106,'12-5-2023',0,0,'Chua thanh toan');
+-- Them data cho bang HoaDon
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (101,100,100,'2023-01-10',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (102,104,102,'2023-01-15',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (103,105,103,'2023-01-20',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (104,101,101,'2023-02-13',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (105,103,120,'2023-02-12',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (106,104,100,'2023-03-16',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (107,107,103,'2023-03-20',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (108,108,101,'2023-04-10',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (109,100,100,'2023-04-20',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (110,103,101,'2023-05-05',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (111,106,102,'2023-05-10',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (112,108,103,'2023-05-15',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (113,106,102,'2023-05-20',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (114,108,103,'2023-06-05',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (115,109,104,'2023-06-07',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (116,100,105,'2023-06-07',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (117,106,106,'2023-06-10',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (118,102,106,'2023-02-10',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (119,103,106,'2023-02-12',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (120,104,106,'2023-04-10',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (121,105,106,'2023-04-12',0,0,'Chua thanh toan');
+INSERT INTO HoaDon(ID_HoaDon,ID_KH,ID_Ban,NgayHD,TienMonAn,TienGiam,Trangthai) VALUES (122,107,106,'2023-05-12',0,0,'Chua thanh toan');
 
---Them data cho CTHD
+
+-- Them data cho CTHD
 INSERT INTO CTHD(ID_HoaDon,ID_MonAn,SoLuong) VALUES (101,1,2);
 INSERT INTO CTHD(ID_HoaDon,ID_MonAn,SoLuong) VALUES (101,3,1);
 INSERT INTO CTHD(ID_HoaDon,ID_MonAn,SoLuong) VALUES (101,10,3);
@@ -1131,17 +1133,17 @@ INSERT INTO NguyenLieu(ID_NL,TenNL,Dongia,Donvitinh) VALUES(114,'Dam',50000,'l')
 INSERT INTO NguyenLieu(ID_NL,TenNL,Dongia,Donvitinh) VALUES(115,'Thit de',130000,'kg');
 
 --Them data cho PhieuNK
-INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (100,102,'10-01-2023');
-INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (101,102,'11-02-2023');
-INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (102,102,'12-02-2023');
-INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (103,102,'12-03-2023');
-INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (104,102,'15-03-2023');
-INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (105,102,'12-04-2023');
-INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (106,102,'15-04-2023');
-INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (107,102,'12-05-2023');
-INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (108,102,'15-05-2023');
-INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (109,102,'5-06-2023');
-INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (110,102,'7-06-2023');
+INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (100,102,'2023-01-10');
+INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (101,102,'2023-02-11');
+INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (102,102,'2023-02-12');
+INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (103,102,'2023-03-12');
+INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (104,102,'2023-03-15');
+INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (105,102,'2023-04-12');
+INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (106,102,'2023-04-15');
+INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (107,102,'2023-05-12');
+INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (108,102,'2023-05-15');
+INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (109,102,'2023-06-05');
+INSERT INTO PhieuNK(ID_NK,ID_NV,NgayNK) VALUES (110,102,'2023-06-07');
 
 --Them data cho CTNK
 INSERT INTO CTNK(ID_NK,ID_NL,SoLuong) VALUES (100,100,10);
@@ -1180,20 +1182,20 @@ INSERT INTO CTNK(ID_NK,ID_NL,SoLuong) VALUES (110,106,25);
 INSERT INTO CTNK(ID_NK,ID_NL,SoLuong) VALUES (110,107,15);
 INSERT INTO CTNK(ID_NK,ID_NL,SoLuong) VALUES (110,110,20);
 
---Them data cho PhieuXK
-INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (100,102,'10-01-2023');
-INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (101,102,'11-02-2023');
-INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (102,102,'12-03-2023');
-INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (103,102,'13-03-2023');
-INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (104,102,'12-04-2023');
-INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (105,102,'13-04-2023');
-INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (106,102,'12-05-2023');
-INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (107,102,'15-05-2023');
-INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (108,102,'20-05-2023');
-INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (109,102,'5-06-2023');
-INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (110,102,'10-06-2023');
+-- Them data cho PhieuXK
+INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (100,102,'2023-01-10');
+INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (101,102,'2023-02-11');
+INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (102,102,'2023-03-12');
+INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (103,102,'2023-03-13');
+INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (104,102,'2023-04-12');
+INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (105,102,'2023-04-13');
+INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (106,102,'2023-05-12');
+INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (107,102,'2023-05-15');
+INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (108,102,'2023-05-20');
+INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (109,102,'2023-06-05');
+INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (110,102,'2023-06-10');
 
---Them data cho CTXK
+-- Them data cho CTXK
 INSERT INTO CTXK(ID_XK,ID_NL,SoLuong) VALUES (100,100,5);
 INSERT INTO CTXK(ID_XK,ID_NL,SoLuong) VALUES (100,101,5);
 INSERT INTO CTXK(ID_XK,ID_NL,SoLuong) VALUES (100,102,5);
