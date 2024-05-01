@@ -61,53 +61,29 @@ public class FoodMenu_Form extends javax.swing.JPanel {
             
             //Set Data cho Tiêu đề Menu
             switch (type) {
-                case "Arias" -> {
-                    lbTitle.setText("Menu/" + type + " - Bạch Dương");
+                case "Sashimi" -> {
+                    lbTitle.setText("Menu/" + type + "  - さしみ");
                     lbTitle.setIcon(new ImageIcon(getClass().getResource("/Icons/MenuBar/aries.png")));
                 }
-                case "Taurus" -> {
-                    lbTitle.setText("Menu/" + type + " - Kim Ngưu");
+                case "Salad" -> {
+                    lbTitle.setText("Menu/" + type + " - サラダ");
                     lbTitle.setIcon(new ImageIcon(getClass().getResource("/Icons/MenuBar/taurus.png")));
                 }
-                case "Gemini" -> {
-                    lbTitle.setText("Menu/" + type + " - Song tử");
+                case "MonHapSup" -> {
+                    lbTitle.setText("Menu/" + type);
                     lbTitle.setIcon(new ImageIcon(getClass().getResource("/Icons/MenuBar/gemini.png")));
                 }
-                case "Cancer" -> {
-                    lbTitle.setText("Menu/" + type + " - Cự Giải");
+                case "Sushi" -> {
+                    lbTitle.setText("Menu/" + type + "  - すし");
                     lbTitle.setIcon(new ImageIcon(getClass().getResource("/Icons/MenuBar/cancer.png")));
                 }
-                case "Leo" -> {
-                    lbTitle.setText("Menu/" + type + " - Sư tử");
+                case "KhaiVi" -> {
+                    lbTitle.setText("Menu/" + type + " - オードブル");
                     lbTitle.setIcon(new ImageIcon(getClass().getResource("/Icons/MenuBar/leo.png")));
                 }
-                case "Virgo" -> {
-                    lbTitle.setText("Menu/" + type + " - Xử Nữ");
+                case "ComCuon" -> {
+                    lbTitle.setText("Menu/" + type + " - まきずし");
                     lbTitle.setIcon(new ImageIcon(getClass().getResource("/Icons/MenuBar/virgo.png")));
-                }
-                case "Libra" -> {
-                    lbTitle.setText("Menu/" + type + " - Thiên Bình");
-                    lbTitle.setIcon(new ImageIcon(getClass().getResource("/Icons/MenuBar/libra.png")));
-                }
-                case "Scorpio" -> {
-                    lbTitle.setText("Menu/" + type + " - Bọ Cạp");
-                    lbTitle.setIcon(new ImageIcon(getClass().getResource("/Icons/MenuBar/scorpio.png")));
-                }
-                case "Sagittarius" -> {
-                    lbTitle.setText("Menu/" + type + " - Nhân Mã");
-                    lbTitle.setIcon(new ImageIcon(getClass().getResource("/Icons/MenuBar/sagittarius.png")));
-                }
-                case "Capricorn" -> {
-                    lbTitle.setText("Menu/" + type + " - Ma Kết");
-                    lbTitle.setIcon(new ImageIcon(getClass().getResource("/Icons/MenuBar/capricorn.png")));
-                }
-                case "Aquarius" -> {
-                    lbTitle.setText("Menu/" + type + " - Bảo Bình");
-                    lbTitle.setIcon(new ImageIcon(getClass().getResource("/Icons/MenuBar/aquarius.png")));
-                }
-                case "Pisces" -> {
-                    lbTitle.setText("Menu/" + type + " - Song Ngư");
-                    lbTitle.setIcon(new ImageIcon(getClass().getResource("/Icons/MenuBar/pisces.png")));
                 }
                 default -> {
                 }

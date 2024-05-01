@@ -51,18 +51,12 @@ public class Main_Customer_Frame extends javax.swing.JFrame {
                 switch (menuIndex) {
                     case 0 -> {
                         switch (subMenuIndex) {
-                            case 0 -> main.showForm(new FoodMenu_Form("Aries",user));
-                            case 1 -> main.showForm(new FoodMenu_Form("Taurus",user));
-                            case 2 -> main.showForm(new FoodMenu_Form("Gemini",user));
-                            case 3 -> main.showForm(new FoodMenu_Form("Cancer",user));
-                            case 4 -> main.showForm(new FoodMenu_Form("Leo",user));
-                            case 5 -> main.showForm(new FoodMenu_Form("Virgo",user));
-                            case 6 -> main.showForm(new FoodMenu_Form("Libra",user));
-                            case 7 -> main.showForm(new FoodMenu_Form("Scorpio",user));
-                            case 8 -> main.showForm(new FoodMenu_Form("Sagittarius",user));
-                            case 9 -> main.showForm(new FoodMenu_Form("Capricorn",user));
-                            case 10 -> main.showForm(new FoodMenu_Form("Aquarius",user));
-                            case 11 -> main.showForm(new FoodMenu_Form("Pisces",user));
+                            case 0 -> main.showForm(new FoodMenu_Form("Sashimi",user));
+                            case 1 -> main.showForm(new FoodMenu_Form("Salad",user));
+                            case 2 -> main.showForm(new FoodMenu_Form("MonHapSup",user));
+                            case 3 -> main.showForm(new FoodMenu_Form("Sushi",user));
+                            case 4 -> main.showForm(new FoodMenu_Form("KhaiVi",user));
+                            case 5 -> main.showForm(new FoodMenu_Form("ComCuon",user));
                             default -> {
                             }
                         }
