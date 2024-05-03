@@ -4,11 +4,8 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/D:/subject/java/Project_Restaurant_Java/src/RTDRestaurant/Controller/Service/ServiceStaff.java</file>
-            <file>file:/D:/subject/java/Project_Restaurant_Java/src/RTDRestaurant/View/Main_Frame/Main_WarehouseStaff_Frame.java</file>
-            <file>file:/D:/subject/java/Project_Restaurant_Java/src/RTDRestaurant/View/Form/Staff_Form/WarehouseStaff/Import_Form.java</file>
             <file>file:/D:/subject/java/Project_Restaurant_Java/src/RTDRestaurant/View/Dialog/MS_ConfirmOrderFood.java</file>
             <file>file:/D:/subject/java/Project_Restaurant_Java/src/RTDRestaurant/Controller/Service/ServiceCustomer.java</file>
-            <file>file:/D:/subject/java/Project_Restaurant_Java/src/RTDRestaurant/View/Form/Staff_Form/WarehouseStaff/InsertPNK_Form.java</file>
             <file>file:/D:/subject/java/Project_Restaurant_Java/src/DataBase/Database.sql</file>
             <file>file:/D:/subject/java/Project_Restaurant_Java/src/RTDRestaurant/Controller/Connection/DatabaseConnection.java</file>
         </group>

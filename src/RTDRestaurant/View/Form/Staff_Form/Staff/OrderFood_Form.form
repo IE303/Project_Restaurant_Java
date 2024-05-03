@@ -265,19 +265,13 @@
           <Color blue="7b" green="5b" red="6c" type="rgb"/>
         </Property>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="12">
-            <StringItem index="0" value="Aries"/>
-            <StringItem index="1" value="Taurus"/>
-            <StringItem index="2" value="Gemini"/>
-            <StringItem index="3" value="Cancer"/>
-            <StringItem index="4" value="Leo"/>
-            <StringItem index="5" value="Virgo"/>
-            <StringItem index="6" value="Libra"/>
-            <StringItem index="7" value="Scorpio"/>
-            <StringItem index="8" value="Sagittarius"/>
-            <StringItem index="9" value="Capricorn"/>
-            <StringItem index="10" value="Aquarius"/>
-            <StringItem index="11" value="Pisces"/>
+          <StringArray count="6">
+            <StringItem index="0" value="Sashimi"/>
+            <StringItem index="1" value="Salad"/>
+            <StringItem index="2" value="MonHapSup"/>
+            <StringItem index="3" value="Sushi"/>
+            <StringItem index="4" value="KhaiVi"/>
+            <StringItem index="5" value="ComCuon"/>
           </StringArray>
         </Property>
         <Property name="toolTipText" type="java.lang.String" value="S&#x103;&#x301;p x&#xea;&#x301;p"/>
@@ -294,6 +288,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="TypeMenuActionPerformed"/>
       </Events>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_SerializeTo" type="java.lang.String" value="OrderFood_Form_TypeMenu"/>
         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
       </AuxValues>
     </Component>
