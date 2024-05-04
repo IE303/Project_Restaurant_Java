@@ -409,7 +409,7 @@ public class ServiceStaff {
     //Thêm phiếu xuất kho và chi tiết Xuất kho
     public void InsertPXK_CTXK(ModelPXK pxk, ArrayList<ModelKho> list) throws SQLException {
         //Thêm phiếu nhập kho
-        String sql = "INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (?,?,DATE_FORMAT(?, '%d-%m-%Y'))";
+        String sql = "INSERT INTO PhieuXK(ID_XK,ID_NV,NgayXK) VALUES (?,?,STR_TO_DATE(?, '%d-%m-%Y'))";
         PreparedStatement p = con.prepareStatement(sql);
         p.setInt(1, pxk.getIdXK());
         p.setInt(2, pxk.getIdNV());
