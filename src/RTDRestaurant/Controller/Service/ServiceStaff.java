@@ -190,7 +190,7 @@ public class ServiceStaff {
     public int getTongtienNK() throws SQLException {
     int tongtien = 0;
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
-    String sql = "SELECT SUM(Tongtien) FROM PhieuNK WHERE NgayNK = DATE_FORMAT(?, '%d-%m-%Y')";
+    String sql = "SELECT SUM(Tongtien) FROM PhieuNK WHERE NgayNK = STR_TO_DATE(?, '%d-%m-%Y')";
     PreparedStatement p = con.prepareStatement(sql);
     p.setString(1, simpleDateFormat.format(new Date()));
     ResultSet r = p.executeQuery();
@@ -390,6 +390,19 @@ public class ServiceStaff {
             }
         }
         p.close();
+    }
+        public void updateTongTienPhieuNhapKho(int ID_NK) throws SQLException {
+        String sql = "UPDATE PhieuNK pn " +
+                     "JOIN (SELECT ID_NK, SUM(Thanhtien) AS TongThanhTien FROM CTNK WHERE ID_NK = ? GROUP BY ID_NK) c " +
+                     "ON pn.ID_NK = c.ID_NK " +
+                     "SET pn.Tongtien = c.TongThanhTien " +
+                     "WHERE pn.ID_NK = ?";
+
+        try (PreparedStatement statement = con.prepareStatement(sql)) {
+            statement.setInt(1, ID_NK);
+            statement.setInt(2, ID_NK);
+            statement.executeUpdate();
+        }
     }
 
 

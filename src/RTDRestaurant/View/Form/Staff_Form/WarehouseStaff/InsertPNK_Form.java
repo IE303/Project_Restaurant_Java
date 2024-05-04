@@ -348,6 +348,7 @@ public class InsertPNK_Form extends javax.swing.JPanel {
         ModelPNK pnk=new ModelPNK(idNK, idNV, ngayNK);
         try {
             service.InsertPNK_CTNK(pnk, list);
+            service.updateTongTienPhieuNhapKho(idNK);
         } catch (SQLException ex) {
             Logger.getLogger(InsertPNK_Form.class.getName()).log(Level.SEVERE, null, ex);
         }
