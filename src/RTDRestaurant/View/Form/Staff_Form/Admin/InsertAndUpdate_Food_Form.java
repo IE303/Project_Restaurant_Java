@@ -158,7 +158,7 @@ public class InsertAndUpdate_Food_Form extends javax.swing.JPanel {
         cbboxLoai.setBackground(new java.awt.Color(215, 221, 232));
         cbboxLoai.setFont(new java.awt.Font("SansSerif", 0, 16)); // NOI18N
         cbboxLoai.setForeground(new java.awt.Color(83, 105, 118));
-        cbboxLoai.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces" }));
+        cbboxLoai.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Sashimi", "Salad", "MonHapSup", "Sushi", "KhaiVi", "ComCuon" }));
         cbboxLoai.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153), 2));
         cbboxLoai.setFocusable(false);
 
