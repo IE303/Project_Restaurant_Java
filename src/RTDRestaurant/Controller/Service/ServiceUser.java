@@ -149,7 +149,7 @@ public class ServiceUser {
         
         //Thêm KH mới
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-YYYY");
-        String sql_KH="INSERT INTO KhachHang (ID_KH,TenKH, Ngaythamgia,ID_ND) VALUES (?,?,to_date(?, 'dd-mm-yyyy'),?)";
+        String sql_KH="INSERT INTO KhachHang (ID_KH,TenKH, Ngaythamgia,ID_ND) VALUES (?,?,STR_TO_DATE(?, 'dd-mm-yyyy'),?)";
         PreparedStatement p2=con.prepareStatement(sql_KH);
         p2.setInt(1, id);
         p2.setString(2, name);
