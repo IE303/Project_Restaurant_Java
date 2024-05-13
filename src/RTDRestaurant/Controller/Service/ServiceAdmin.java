@@ -25,7 +25,7 @@ public class ServiceAdmin {
     //Lấy toàn bộ danh sách nhân viên
     public ArrayList<ModelNhanVien> getListNV() throws SQLException {
         ArrayList<ModelNhanVien> list = new ArrayList();
-        String sql = "SELECT ID_NV,TenNV,to_char(NgayVL,'dd-mm-yyyy')as Ngay,SDT,ChucVu,ID_NQL,TinhTrang FROM NhanVien";
+        String sql = "SELECT ID_NV,TenNV,STR_TO_DATE(NgayVL,'dd-mm-yyyy')as Ngay,SDT,ChucVu,ID_NQL,TinhTrang FROM NhanVien";
         PreparedStatement p = con.prepareStatement(sql);
         ResultSet r = p.executeQuery();
         while (r.next()) {
@@ -47,7 +47,7 @@ public class ServiceAdmin {
     //Lấy thông tin nhân viên từ ID
     public ModelNhanVien getNV(int idNV) throws SQLException {
         ModelNhanVien data = null;
-        String sql = "SELECT ID_NV,TenNV,to_char(NgayVL,'dd-mm-yyyy')as Ngay,SDT,ChucVu,ID_NQL,TinhTrang FROM NhanVien WHERE ID_NV=?";
+        String sql = "SELECT ID_NV,TenNV,STR_TO_DATE(NgayVL,'dd-mm-yyyy')as Ngay,SDT,ChucVu,ID_NQL,TinhTrang FROM NhanVien WHERE ID_NV=?";
         PreparedStatement p = con.prepareStatement(sql);
         p.setInt(1, idNV);
         ResultSet r = p.executeQuery();
@@ -80,7 +80,7 @@ public class ServiceAdmin {
 
     //Thêm mới một nhân viên
     public void insertNV(ModelNhanVien data) throws SQLException {
-        String sql = "INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_NQL,TinhTrang) VALUES (?,?,to_date(?,'dd-mm-yyyy'),?,?,?,'Dang lam viec')";
+        String sql = "INSERT INTO NhanVien(ID_NV,TenNV,NgayVL,SDT,Chucvu,ID_NQL,TinhTrang) VALUES (?,?,STR_TO_DATE(?,'%Y-%m-%d'),?,?,?,'Dang lam viec')";
         PreparedStatement p = con.prepareStatement(sql);
         p.setInt(1, data.getId_NV());
         p.setString(2, data.getTenNV());

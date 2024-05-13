@@ -94,7 +94,9 @@ public class InsertAndUpdate_Staff_Form extends javax.swing.JPanel {
         txtmaNV.setText(data.getId_NV() + "");
         txttenNV.setText(data.getTenNV());
         try {
-            txtNVL.setDate(simpleDateFormat.parse(data.getNgayVL()));
+            if(data.getNgayVL() != null && !data.getNgayVL().isEmpty()){
+                txtNVL.setDate(simpleDateFormat.parse(data.getNgayVL()));
+        }
         } catch (ParseException ex) {
             Logger.getLogger(InsertAndUpdate_Staff_Form.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -208,7 +210,7 @@ public class InsertAndUpdate_Staff_Form extends javax.swing.JPanel {
         txtNVL.setBackground(new java.awt.Color(175, 185, 203));
         txtNVL.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(108, 91, 123), 2, true));
         txtNVL.setForeground(new java.awt.Color(83, 105, 118));
-        txtNVL.setDateFormatString("dd-MM-YYYY");
+        txtNVL.setDateFormatString("YYYY-MM-dd");
         txtNVL.setFocusable(false);
         txtNVL.setFont(new java.awt.Font("SansSerif", 0, 16)); // NOI18N
 
