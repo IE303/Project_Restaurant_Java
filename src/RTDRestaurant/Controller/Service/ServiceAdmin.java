@@ -11,6 +11,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.ImageIcon;
 
 public class ServiceAdmin {
@@ -115,22 +117,25 @@ public class ServiceAdmin {
 
     //Lấy toàn bộ danh sách hóa đơn trong Tất cả/ngày/tháng/năm
     public ArrayList<ModelHoaDon> getListHDIn(String txt) throws SQLException {
-        ArrayList<ModelHoaDon> list = new ArrayList();
-        String sql = "SELECT ID_HoaDon,ID_KH,ID_Ban,to_char(NgayHD,'dd-mm-YYYY') as Ngay,Tienmonan,Tiengiam,Tongtien FROM HoaDon";
-        if (txt.equals("Tất cả")) {
-            sql = "SELECT ID_HoaDon,ID_KH,ID_Ban,to_char(NgayHD,'dd-mm-YYYY') as Ngay,Tienmonan,Tiengiam,Tongtien FROM HoaDon";
+        ArrayList<ModelHoaDon> list = new ArrayList<>();
+        String sql = "SELECT ID_HoaDon, ID_KH, ID_Ban, DATE_FORMAT(NgayHD, '%d-%m-%Y') as Ngay, Tienmonan, Tiengiam, Tongtien FROM HoaDon";
+
+        if (txt.equals("Tất cả")) {
+            sql = "SELECT ID_HoaDon, ID_KH, ID_Ban, DATE_FORMAT(NgayHD, '%d-%m-%Y') as Ngay, Tienmonan, Tiengiam, Tongtien FROM HoaDon";
         } else if (txt.equals("Hôm nay")) {
-            sql = "SELECT ID_HoaDon,ID_KH,ID_Ban,to_char(NgayHD,'dd-mm-YYYY') as Ngay,Tienmonan,Tiengiam,Tongtien FROM HoaDon "
-                    + "WHERE TO_DATE(NgayHD,'dd-mm-YYYY')=TO_DATE(CURRENT_DATE,'dd-mm-YYYY')";
-        } else if (txt.equals("Tháng này")) {
-            sql = "SELECT ID_HoaDon,ID_KH,ID_Ban,to_char(NgayHD,'dd-mm-YYYY') as Ngay,Tienmonan,Tiengiam,Tongtien FROM HoaDon "
-                    + "WHERE EXTRACT(MONTH FROM NgayHD)=EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM NgayHD)=EXTRACT(YEAR FROM CURRENT_DATE)";
-        } else if (txt.equals("Năm này")) {
-            sql = "SELECT ID_HoaDon,ID_KH,ID_Ban,to_char(NgayHD,'dd-mm-YYYY') as Ngay,Tienmonan,Tiengiam,Tongtien FROM HoaDon "
-                    + "WHERE EXTRACT(YEAR FROM NgayHD)=EXTRACT(YEAR FROM CURRENT_DATE) ";
+            sql = "SELECT ID_HoaDon, ID_KH, ID_Ban, DATE_FORMAT(NgayHD, '%d-%m-%Y') as Ngay, Tienmonan, Tiengiam, Tongtien FROM HoaDon "
+                    + "WHERE DATE(NgayHD) = CURDATE()";
+        } else if (txt.equals("Tháng này")) {
+            sql = "SELECT ID_HoaDon, ID_KH, ID_Ban, DATE_FORMAT(NgayHD, '%d-%m-%Y') as Ngay, Tienmonan, Tiengiam, Tongtien FROM HoaDon "
+                    + "WHERE MONTH(NgayHD) = MONTH(CURDATE()) AND YEAR(NgayHD) = YEAR(CURDATE())";
+        } else if (txt.equals("Năm này")) {
+            sql = "SELECT ID_HoaDon, ID_KH, ID_Ban, DATE_FORMAT(NgayHD, '%d-%m-%Y') as Ngay, Tienmonan, Tiengiam, Tongtien FROM HoaDon "
+                    + "WHERE YEAR(NgayHD) = YEAR(CURDATE())";
         }
+
         PreparedStatement p = con.prepareStatement(sql);
         ResultSet r = p.executeQuery();
+
         while (r.next()) {
             int idHoaDon = r.getInt(1);
             int idKH = r.getInt(2);
@@ -142,20 +147,23 @@ public class ServiceAdmin {
             ModelHoaDon data = new ModelHoaDon(idHoaDon, idKH, idBan, ngayHD, tienMonAn, tienGiam, tongtien);
             list.add(data);
         }
-        p.close();
+
         r.close();
+        p.close();
+
         return list;
     }
+
 
     //Lấy tổng doanh thu Hóa Đơn trong ngày/tháng/năm
     public int getRevenueHD(String filter) throws SQLException {
         int revenue = 0;
         
-        String sql = "SELECT SUM(Tongtien) FROM HoaDon WHERE STR_TO_DATE(NgayHD,'%d-%m-%Y') = CURDATE()";
+        String sql = "SELECT SUM(Tongtien) FROM HoaDon WHERE STR_TO_DATE(NgayHD,'%Y-%m-%d') = CURDATE()";
         if(filter.equals("Tháng này")) {
-            sql = "SELECT SUM(Tongtien) FROM HoaDon WHERE MONTH(STR_TO_DATE(NgayHD,'%d-%m-%Y')) = MONTH(CURDATE()) AND YEAR(STR_TO_DATE(NgayHD,'%d-%m-%Y')) = YEAR(CURDATE())";
+            sql = "SELECT SUM(Tongtien) FROM HoaDon WHERE MONTH(STR_TO_DATE(NgayHD,'%Y-%m-%d')) = MONTH(CURDATE()) AND YEAR(STR_TO_DATE(NgayHD,'%Y-%m-%d')) = YEAR(CURDATE())";
         } else if(filter.equals("Năm này")) {
-            sql = "SELECT SUM(Tongtien) FROM HoaDon WHERE YEAR(STR_TO_DATE(NgayHD,'%d-%m-%Y')) = YEAR(CURDATE())";
+            sql = "SELECT SUM(Tongtien) FROM HoaDon WHERE YEAR(STR_TO_DATE(NgayHD,'%Y-%m-%d')) = YEAR(CURDATE())";
         }
 
         PreparedStatement p = con.prepareStatement(sql);
@@ -185,22 +193,25 @@ public class ServiceAdmin {
 
     //Lấy toàn bộ danh sách Phiếu Nhập Kho trong Tất cả/ngày/tháng/năm
     public ArrayList<ModelPNK> getListPNKIn(String txt) throws SQLException {
-        ArrayList<ModelPNK> list = new ArrayList();
-        String sql = "SELECT ID_NK,ID_NV,to_char(NgayNK,'dd-mm-yyyy') AS Ngay,Tongtien FROM PhieuNK ORDER BY ID_NK";
-        if (txt.equals("Tất cả")) {
-            sql = "SELECT ID_NK,ID_NV,to_char(NgayNK,'dd-mm-yyyy') AS Ngay,Tongtien FROM PhieuNK ORDER BY ID_NK";
+        ArrayList<ModelPNK> list = new ArrayList<>();
+        String sql = "SELECT ID_NK, ID_NV, DATE_FORMAT(NgayNK, '%d-%m-%Y') AS Ngay, Tongtien FROM PhieuNK ORDER BY ID_NK";
+
+        if (txt.equals("Tất cả")) {
+            sql = "SELECT ID_NK, ID_NV, DATE_FORMAT(NgayNK, '%d-%m-%Y') AS Ngay, Tongtien FROM PhieuNK ORDER BY ID_NK";
         } else if (txt.equals("Hôm nay")) {
-            sql = "SELECT ID_NK,ID_NV,to_char(NgayNK,'dd-mm-yyyy') AS Ngay,Tongtien FROM PhieuNK "
-                    + "WHERE TO_DATE(NgayNK,'dd-mm-YYYY')=TO_DATE(CURRENT_DATE,'dd-mm-YYYY') ORDER BY ID_NK";
-        } else if (txt.equals("Tháng này")) {
-            sql = "SELECT ID_NK,ID_NV,to_char(NgayNK,'dd-mm-yyyy') AS Ngay,Tongtien FROM PhieuNK "
-                    + "WHERE EXTRACT(MONTH FROM NgayNK)=EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM NgayNK)=EXTRACT(YEAR FROM CURRENT_DATE) ORDER BY ID_NK";
-        } else if (txt.equals("Năm này")) {
-            sql = "SELECT ID_NK,ID_NV,to_char(NgayNK,'dd-mm-yyyy') AS Ngay,Tongtien FROM PhieuNK "
-                    + "WHERE EXTRACT(YEAR FROM NgayNK)=EXTRACT(YEAR FROM CURRENT_DATE) ORDER BY ID_NK";
+            sql = "SELECT ID_NK, ID_NV, DATE_FORMAT(NgayNK, '%d-%m-%Y') AS Ngay, Tongtien FROM PhieuNK "
+                    + "WHERE DATE(NgayNK) = CURDATE() ORDER BY ID_NK";
+        } else if (txt.equals("Tháng này")) {
+            sql = "SELECT ID_NK, ID_NV, DATE_FORMAT(NgayNK, '%d-%m-%Y') AS Ngay, Tongtien FROM PhieuNK "
+                    + "WHERE MONTH(NgayNK) = MONTH(CURDATE()) AND YEAR(NgayNK) = YEAR(CURDATE()) ORDER BY ID_NK";
+        } else if (txt.equals("Năm này")) {
+            sql = "SELECT ID_NK, ID_NV, DATE_FORMAT(NgayNK, '%d-%m-%Y') AS Ngay, Tongtien FROM PhieuNK "
+                    + "WHERE YEAR(NgayNK) = YEAR(CURDATE()) ORDER BY ID_NK";
         }
+
         PreparedStatement p = con.prepareStatement(sql);
         ResultSet r = p.executeQuery();
+
         while (r.next()) {
             int idNK = r.getInt(1);
             int idNV = r.getInt(2);
@@ -209,10 +220,13 @@ public class ServiceAdmin {
             ModelPNK data = new ModelPNK(idNK, idNV, ngayNK, tongTien);
             list.add(data);
         }
-        p.close();
+
         r.close();
+        p.close();
+
         return list;
     }
+
 
     //Lấy tổng chi phí Nhập kho trong ngày/tháng/năm
     public int getCostNK(String filter) throws SQLException {
@@ -254,25 +268,59 @@ public class ServiceAdmin {
     }
 
     //Lấy toàn bộ doanh thu, chi phí, lợi nhuận của từng tháng trong năm
-    public ArrayList<ModelChart> getRevenueCostProfit_byMonth() throws SQLException{
-        ArrayList<ModelChart> list=new ArrayList<>();
-        String sql_Revenue="SELECT EXTRACT(MONTH FROM NgayHD) as Thang, SUM(TONGTIEN) FROM HoaDon WHERE EXTRACT(YEAR FROM NgayHD)=EXTRACT(YEAR FROM CURRENT_DATE) "
+    public ArrayList<ModelChart> getRevenueCostProfit_byMonth() throws SQLException {
+        ArrayList<ModelChart> list = new ArrayList<>();
+
+        String sql_Revenue = "SELECT EXTRACT(MONTH FROM NgayHD) AS Thang, SUM(TONGTIEN) AS Revenue "
+                + "FROM HoaDon WHERE EXTRACT(YEAR FROM NgayHD) = EXTRACT(YEAR FROM CURRENT_DATE) "
                 + "GROUP BY EXTRACT(MONTH FROM NgayHD) ORDER BY Thang";
-        String sql_Cost="SELECT EXTRACT(MONTH FROM NgayNK) as Thang, SUM(TONGTIEN) FROM PhieuNK WHERE EXTRACT(YEAR FROM NgayNK)=EXTRACT(YEAR FROM CURRENT_DATE) "
+
+        String sql_Cost = "SELECT EXTRACT(MONTH FROM NgayNK) AS Thang, SUM(TONGTIEN) AS Cost "
+                + "FROM PhieuNK WHERE EXTRACT(YEAR FROM NgayNK) = EXTRACT(YEAR FROM CURRENT_DATE) "
                 + "GROUP BY EXTRACT(MONTH FROM NgayNK) ORDER BY Thang";
+
         PreparedStatement p_R = con.prepareStatement(sql_Revenue);
         PreparedStatement p_C = con.prepareStatement(sql_Cost);
-        ResultSet r_R=p_R.executeQuery();
-        ResultSet r_C=p_C.executeQuery();
-        while(r_R.next() && r_C.next()){
-            int revenue=r_R.getInt(2);
-            int expenses=r_C.getInt(2);
-            int profit=revenue-expenses;
-            ModelChart data=new ModelChart("Tháng "+r_R.getInt(1), new double[]{revenue,expenses,profit});
+
+        ResultSet r_R = p_R.executeQuery();
+        ResultSet r_C = p_C.executeQuery();
+
+        // Create maps to store revenues and costs by month
+        Map<Integer, Integer> revenueMap = new HashMap<>();
+        Map<Integer, Integer> costMap = new HashMap<>();
+
+        // Fill the revenue map
+        while (r_R.next()) {
+            int month = r_R.getInt("Thang");
+            int revenue = r_R.getInt("Revenue");
+            revenueMap.put(month, revenue);
+        }
+
+        // Fill the cost map
+        while (r_C.next()) {
+            int month = r_C.getInt("Thang");
+            int cost = r_C.getInt("Cost");
+            costMap.put(month, cost);
+        }
+
+        // Combine data from both maps
+        for (int month = 1; month <= 12; month++) {
+            int revenue = revenueMap.getOrDefault(month, 0);
+            int cost = costMap.getOrDefault(month, 0);
+            int profit = revenue - cost;
+
+            ModelChart data = new ModelChart("Tháng " + month, new double[]{revenue, cost, profit});
             list.add(data);
         }
+
+        r_R.close();
+        r_C.close();
+        p_R.close();
+        p_C.close();
+
         return list;
-    }
+}
+
     //Lấy toàn bộ danh sách Món ăn theo loại Món Ăn
     public ArrayList<ModelMonAn> getMenuFood() throws SQLException {
         ArrayList<ModelMonAn> list = new ArrayList<>();

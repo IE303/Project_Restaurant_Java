@@ -26,7 +26,7 @@ public class DatabaseConnection {
     public void connectToDatabase() throws SQLException {
         final String url = "jdbc:mysql://localhost:3306/DB_RestaurantManagement";
         final String username = "root";
-        final String password = "0101032909Ngan@";
+        final String password = "1234";
         connection = DriverManager.getConnection(url, username, password);
     }
  
