@@ -186,7 +186,7 @@
         <Container class="RTDRestaurant.View.Swing.ImageAvatar" name="pic">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/Icons/profile.jpg"/>
+              <Image iconType="3" name="/Icons/ask.png"/>
             </Property>
           </Properties>
 

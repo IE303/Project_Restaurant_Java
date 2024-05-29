@@ -116,7 +116,7 @@ public class AccountC_Form extends javax.swing.JPanel {
 
         bg.setBackground(new java.awt.Color(247, 247, 247));
 
-        pic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/profile.jpg"))); // NOI18N
+        pic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/ask.png"))); // NOI18N
 
         lbmaKH.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         lbmaKH.setForeground(new java.awt.Color(89, 89, 89));
