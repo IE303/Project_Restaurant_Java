@@ -105,7 +105,7 @@ private MS_ChangePassword changepass;
 
         bg.setBackground(new java.awt.Color(247, 247, 247));
 
-        pic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/parkbogum.jpg"))); // NOI18N
+        pic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/ask (1).png"))); // NOI18N
 
         lbmaNV.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         lbmaNV.setForeground(new java.awt.Color(89, 89, 89));

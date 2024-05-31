@@ -115,7 +115,6 @@ public class ImportStatistic_Form extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         filter = new javax.swing.JComboBox<>();
         cmdCTNK = new RTDRestaurant.View.Swing.Button();
-        cmdExcel = new RTDRestaurant.View.Swing.Button();
 
         setBackground(new java.awt.Color(247, 247, 247));
 
@@ -208,18 +207,6 @@ public class ImportStatistic_Form extends javax.swing.JPanel {
             }
         });
 
-        cmdExcel.setBackground(new java.awt.Color(108, 91, 123));
-        cmdExcel.setForeground(new java.awt.Color(255, 255, 255));
-        cmdExcel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/excel.png"))); // NOI18N
-        cmdExcel.setText("XUẤT FILE EXCEL");
-        cmdExcel.setFocusable(false);
-        cmdExcel.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        cmdExcel.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cmdExcelActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -239,8 +226,6 @@ public class ImportStatistic_Form extends javax.swing.JPanel {
                                 .addComponent(filter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(txtSearch, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(cmdExcel, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(20, 20, 20)
                         .addComponent(cmdCTNK, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(lbprofit)
@@ -278,8 +263,7 @@ public class ImportStatistic_Form extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cmdCTNK, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cmdExcel, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cmdCTNK, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 467, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -293,37 +277,6 @@ public class ImportStatistic_Form extends javax.swing.JPanel {
     private void filterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterActionPerformed
         FilterTable(filter.getSelectedItem().toString());
     }//GEN-LAST:event_filterActionPerformed
-
-    private void cmdExcelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdExcelActionPerformed
-        //Xuất danh sách Hóa Đơn ra file Excel
-        try {
-            ExcelDocument workbook = new ExcelDocument(1);
-            workbook.easy_getSheetAt(0).setSheetName("Danh sách Phiếu Nhập Kho");
-            ExcelTable xlsTable = ((ExcelWorksheet) workbook.easy_getSheetAt(0)).easy_getExcelTable();
-            //Them data cho header
-            DefaultTableModel model = (DefaultTableModel) tablePNK.getModel();
-            for (int col = 0; col < model.getColumnCount(); col++) {
-                xlsTable.easy_getCell(0, col).setValue(model.getColumnName(col));
-                xlsTable.easy_getCell(0, col).setDataType(DataType.STRING);
-                xlsTable.easy_getCell(0, col).setBold(true);
-            }
-            //Thêm data cho bảng
-            for (int row = 0; row < model.getRowCount(); row++) {
-                for (int col = 0; col < model.getColumnCount(); col++) {
-                    xlsTable.easy_getCell(row+1, col).setValue(model.getValueAt(row, col)+"");
-                    xlsTable.easy_getCell(row+1, col).setDataType(DataType.STRING);
-                }
-            }
-            workbook.easy_WriteXLSXFile(".\\src\\ExportFile_Excel\\DanhsachPNK_" + simpleDateFormat.format(new Date()) + ".xlsx");
-            File file=new File("src\\ExportFile_Excel\\DanhsachPNK_" + simpleDateFormat.format(new Date()) + ".xlsx");
-            String path=file.getAbsolutePath();
-            System.out.println(path);
-            obj.ExportFileSuccess(path);
-            workbook.Dispose();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }//GEN-LAST:event_cmdExcelActionPerformed
 
     private void cmdCTNKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCTNKActionPerformed
         int idNK=tablePNK.getFirstCol_RowSelected(tablePNK.getSelectedRow());
@@ -340,7 +293,6 @@ public class ImportStatistic_Form extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private RTDRestaurant.View.Swing.Button cmdCTNK;
-    private RTDRestaurant.View.Swing.Button cmdExcel;
     private javax.swing.JComboBox<String> filter;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
