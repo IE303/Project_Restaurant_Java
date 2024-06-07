@@ -85,7 +85,7 @@ public class ServiceCustomer {
         p.close();
         return list;
     }
-
+//    
     //Lấy toàn bộ danh sách bàn theo tầng
     public ArrayList<ModelBan> MenuTable(String floor) throws SQLException {
         ArrayList<ModelBan> list = new ArrayList<>();
