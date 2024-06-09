@@ -28,7 +28,7 @@ public class ServiceCustomer {
     //Lấy toàn bộ danh sách Món ăn theo loại Món Ăn đang kinh doanh
     public ArrayList<ModelMonAn> MenuFood(String type) throws SQLException {
         ArrayList<ModelMonAn> list = new ArrayList<>();
-        String sql = "SELECT ID_MonAn,TenMon,DonGia FROM MonAn WHERE Loai=? AND TrangThai='Dang kinh doanh'";
+        String sql = "SELECT ID_MonAn, TenMon, DonGia, image FROM MonAn WHERE Loai=? AND TrangThai='Dang kinh doanh'";
         PreparedStatement p = con.prepareStatement(sql);
         p.setString(1, type);
         ResultSet r = p.executeQuery();
@@ -36,12 +36,9 @@ public class ServiceCustomer {
             int id = r.getInt("ID_MonAn");
             String name = r.getString("TenMon");
             int value = r.getInt("DonGia");
-            ModelMonAn data;
-            if (id < 90) {
-                data = new ModelMonAn(new ImageIcon(getClass().getResource("/Icons/Food/" + type + "/" + id + ".jpg")), id, name, value, type);
-            } else {
-                data = new ModelMonAn(new ImageIcon(getClass().getResource("/Icons/Food/Unknown/unknown.jpg")), id, name, value, type);
-            }
+        String imageUrl = r.getString("image");
+//            ModelMonAn data;
+            ModelMonAn data = new ModelMonAn(id,name, value, type, "Đang kinh doanh", imageUrl);
             list.add(data);
         }
         r.close();
@@ -51,40 +48,40 @@ public class ServiceCustomer {
 
     //Lấy danh sách Món ăn theo loại món ăn và thứ tự Tên/Giá tăng dần/Giá giảm dần đang kinh doanh
     public ArrayList<ModelMonAn> MenuFoodOrder(String type, String orderBy) throws SQLException {
-        ArrayList<ModelMonAn> list = new ArrayList<>();
-
-        String sql = "SELECT ID_MonAn,TenMon,DonGia FROM MonAn WHERE Loai=? AND TrangThai='Dang kinh doanh'";
-        switch (orderBy) {
-            case "Tên A->Z" -> {
-                sql = "SELECT ID_MonAn,TenMon,DonGia FROM MonAn WHERE Loai=? AND TrangThai='Dang kinh doanh' ORDER BY TenMon";
-            }
-            case "Giá tăng dần" -> {
-                sql = "SELECT ID_MonAn,TenMon,DonGia FROM MonAn WHERE Loai=? AND TrangThai='Dang kinh doanh' ORDER BY DonGia";
-            }
-            case "Giá giảm dần" -> {
-                sql = "SELECT ID_MonAn,TenMon,DonGia FROM MonAn WHERE Loai=? AND TrangThai='Dang kinh doanh' ORDER BY DonGia DESC";
-            }
-        }
-        PreparedStatement p = con.prepareStatement(sql);
-        p.setString(1, type);
-
-        ResultSet r = p.executeQuery();
-        while (r.next()) {
-            int id = r.getInt("ID_MonAn");
-            String name = r.getString("TenMon");
-            int value = r.getInt("DonGia");
-            ModelMonAn data;
-            if (id < 90) {
-                data = new ModelMonAn(new ImageIcon(getClass().getResource("/Icons/Food/" + type + "/" + id + ".jpg")), id, name, value, type);
-            } else {
-                data = new ModelMonAn(new ImageIcon(getClass().getResource("/Icons/Food/Unknown/unknown.jpg")), id, name, value, type);
-            }
-            list.add(data);
-        }
-        r.close();
-        p.close();
-        return list;
+    ArrayList<ModelMonAn> list = new ArrayList<>();
+    String sql = "SELECT ID_MonAn, TenMon, DonGia, image FROM MonAn WHERE Loai=? AND TrangThai='Dang kinh doanh'";
+    
+    switch (orderBy) {
+        case "Tên A->Z":
+            sql += " ORDER BY TenMon";
+            break;
+        case "Giá tăng dần":
+            sql += " ORDER BY DonGia";
+            break;
+        case "Giá giảm dần":
+            sql += " ORDER BY DonGia DESC";
+            break;
     }
+    
+    PreparedStatement p = con.prepareStatement(sql);
+    p.setString(1, type);
+    ResultSet r = p.executeQuery();
+    
+    while (r.next()) {
+        int id = r.getInt("ID_MonAn");
+        String name = r.getString("TenMon");
+        int value = r.getInt("DonGia");
+        String imageUrl = r.getString("image");
+
+        ModelMonAn data = new ModelMonAn(id,name, value, type, "Đang kinh doanh", imageUrl);
+        System.out.println("RTDRestaurant.Controller.Service.ServiceCustomer.MenuFoodOrder()"+imageUrl);
+        list.add(data);
+    }
+    r.close();
+    p.close();
+    
+    return list;
+}
 //    
     //Lấy toàn bộ danh sách bàn theo tầng
     public ArrayList<ModelBan> MenuTable(String floor) throws SQLException {

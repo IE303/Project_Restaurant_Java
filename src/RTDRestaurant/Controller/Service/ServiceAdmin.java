@@ -324,7 +324,7 @@ public class ServiceAdmin {
     //Lấy toàn bộ danh sách Món ăn theo loại Món Ăn
     public ArrayList<ModelMonAn> getMenuFood() throws SQLException {
         ArrayList<ModelMonAn> list = new ArrayList<>();
-        String sql = "SELECT ID_MonAn,TenMon,DonGia,Loai,TrangThai FROM MonAn";
+        String sql = "SELECT ID_MonAn,TenMon,DonGia,Loai,TrangThai,image FROM MonAn";
         PreparedStatement p = con.prepareStatement(sql);
         ResultSet r = p.executeQuery();
         while (r.next()) {
@@ -333,12 +333,9 @@ public class ServiceAdmin {
             int value = r.getInt("DonGia");
             String type = r.getString("Loai");
             String state =r.getString("TrangThai");
-            ModelMonAn data;
-            if (id < 90) {
-                data = new ModelMonAn(new ImageIcon(getClass().getResource("/Icons/Food/" + type + "/" + id + ".jpg")), id, name, value, type,state);
-            } else {
-                data = new ModelMonAn(new ImageIcon(getClass().getResource("/Icons/Food/Unknown/unknown.jpg")), id, name, value, type,state);
-            }
+            String imageUrl = r.getString("image");
+           
+             ModelMonAn data = new ModelMonAn(id,name, value, type, state, imageUrl);
             list.add(data);
         }
         r.close();

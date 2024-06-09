@@ -14,6 +14,15 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
+import java.text.DecimalFormat;
+import javax.imageio.ImageIO;
 
 public class InsertAndUpdate_Food_Form extends javax.swing.JPanel {
 
@@ -47,7 +56,22 @@ public class InsertAndUpdate_Food_Form extends javax.swing.JPanel {
         } else {
             insert = false;
             lbTitle.setText("Sửa THÔNG TIN");
-            pic.setIcon(data.getIcon());
+//            pic.setIcon(data.getIcon());
+            try {
+        String imageUrl = data.getImageUrl();
+        if (imageUrl != null && !imageUrl.isEmpty()) { // Check for null and empty string
+            URL url = new URL(imageUrl);
+            BufferedImage image = ImageIO.read(url);
+            if (image != null) {
+                pic.setIcon(new ImageIcon(image));
+            } else {
+                System.err.println("Image is null");
+            }
+        } else {
+            System.err.println("Image URL is null or empty");
+        } } catch (IOException e) {
+        e.printStackTrace();
+    }
             if (data.getState().equals("Dang kinh doanh")) {
                 cmdStop.addActionListener(new ActionListener() {
                     @Override
