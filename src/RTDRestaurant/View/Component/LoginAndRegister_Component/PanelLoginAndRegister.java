@@ -17,6 +17,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import net.miginfocom.swing.MigLayout;
+import RTDRestaurant.Controller.Session.UserSession;
 
 //Panel Đăng nhập/Đăng kys
 public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
@@ -49,7 +50,8 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         initLogin(eventLogin);
         initRegister(eventRegister);
         register.setVisible(true);
-        login.setVisible(false);    
+        login.setVisible(false);  
+        
     }
 
     //Khởi tạo màn hình đăng ký
@@ -113,20 +115,20 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         });
     }
 
-    //Khởi tạo màn hình Đăng nhập
+    // Khởi tạo màn hình Đăng nhập
     private void initLogin(ActionListener eventLogin) {
-        //Set Layout
+        // Set Layout
         login.setLayout(new MigLayout("wrap", "push[center]push", "push[]25[]10[]10[]25[]push"));
         JLabel label = new JLabel("ĐĂNG NHẬP");
         label.setFont(new Font("sansserif", 1, 30));
         label.setForeground(Color.decode("#6C5B7B"));
         login.add(label);
-        //TextField Email
+        // TextField Email
         MyTextField txtEmail = new MyTextField();
         txtEmail.setPrefixIcon(new ImageIcon(getClass().getResource("/Icons/mail.png")));
         txtEmail.setHint("Email");
         login.add(txtEmail, "w 60%");
-        //TextField Mật khẩu
+        // TextField Mật khẩu
         MyPasswordField txtPassword = new MyPasswordField();
         def = txtPassword.getEchoChar();
         txtPassword.setPrefixIcon(new ImageIcon(getClass().getResource("/Icons/pass.png")));
@@ -134,44 +136,64 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         txtPassword.setSuffixIcon(show);
         login.add(txtPassword, "w 60%");
         txtPassword.addMouseListener(new MouseAdapter() {
-         
+            @Override
             public void mouseClicked(MouseEvent e) {
                 if (txtPassword.getSuffixIcon().equals(hide)) {
                     txtPassword.setSuffixIcon(show);
-                    txtPassword.setEchoChar((char) 0);
-
+                    txtPassword.setEchoChar(def);
                 } else {
                     txtPassword.setSuffixIcon(hide);
-                    txtPassword.setEchoChar(def);
+                    txtPassword.setEchoChar((char) 0);
                 }
             }
-
         });
-        //Button "Quên mật khẩu"
+        // Button "Quên mật khẩu"
         JButton cmdForget = new JButton("Quên mật khẩu của bạn ?");
         cmdForget.setForeground(new Color(100, 100, 100));
         cmdForget.setFont(new Font("sansserif", 1, 12));
         cmdForget.setContentAreaFilled(false);
         cmdForget.setCursor(new Cursor(Cursor.HAND_CURSOR));
         login.add(cmdForget);
-        //Button "ĐĂNG NHẬP"
+        // Button "ĐĂNG NHẬP"
         Button cmd = new Button();
         cmd.setBackground(Color.decode("#6C5B7B"));
         cmd.setForeground(new Color(250, 250, 250));
         cmd.setText("ĐĂNG NHẬP");
         login.add(cmd, "w 40%, h 40");
-        //Add Event cho Button "ĐANWGN NHẬP"
+        // Add Event cho Button "ĐĂNG NHẬP"
         cmd.addActionListener(eventLogin);
-        //Add Event cho Button "ĐANWGN NHẬP"
+        // Add Event cho Button "ĐĂNG NHẬP"
         cmd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String email = txtEmail.getText().trim();
                 String password = String.valueOf(txtPassword.getPassword());
                 dataLogin = new ModelLogin(email, password);
+
+                // Giả sử bạn có một phương thức để xác thực người dùng và lấy thông tin người dùng
+                ModelNguoiDung loggedInUser = authenticateUser(email, password);
+                if (loggedInUser != null) {
+                    // Thiết lập thông tin người dùng hiện tại trong UserSession
+                    UserSession.setCurrentUser(loggedInUser);
+                    System.out.println("Đăng nhập thành công: " + loggedInUser.getEmail());
+                } else {
+                    System.out.println("Đăng nhập thất bại. Vui lòng kiểm tra email và mật khẩu.");
+                }
             }
         });
     }
+
+    // Phương thức giả lập để xác thực người dùng
+    private ModelNguoiDung authenticateUser(String email, String password) {
+        // Thực hiện xác thực người dùng với email và mật khẩu
+        // Trả về đối tượng ModelNguoiDung nếu xác thực thành công, ngược lại trả về null
+        // Đây chỉ là ví dụ, bạn cần thay thế bằng logic xác thực thực tế của bạn
+        if (email.equals("test@example.com") && password.equals("password")) {
+            return new ModelNguoiDung(1, email, password, "Khach Hang");
+        }
+        return null;
+    }
+
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

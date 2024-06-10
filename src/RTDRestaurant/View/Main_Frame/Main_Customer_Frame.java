@@ -6,6 +6,7 @@ import RTDRestaurant.Controller.Event.EventMenuSelected;
 import RTDRestaurant.Model.ModelNguoiDung;
 import RTDRestaurant.View.Component.Customer_Component.Menu;
 import RTDRestaurant.View.Form.Customer_Form.AboutUs_Form;
+import RTDRestaurant.View.Form.Customer_Form.Suggested_dishes;
 import RTDRestaurant.View.Form.Customer_Form.AccountC_Form;
 import RTDRestaurant.View.Form.Customer_Form.Bill_Form;
 import RTDRestaurant.View.Form.Customer_Form.FoodMenu_Form;
@@ -43,57 +44,50 @@ public class Main_Customer_Frame extends javax.swing.JFrame {
     public void init(){
         layout = new MigLayout("fill","0[]0[100%, fill]0","0[fill, top]0");
         bg.setLayout(layout);
-        menu=new Menu();
-        main= new MainForm();
-        menu.addEvent(new EventMenuSelected(){
-            @Override
-            public void menuSelected(int menuIndex, int subMenuIndex)  {
-                switch (menuIndex) {
-                    case 0 -> {
-                        switch (subMenuIndex) {
-                            case 0 -> main.showForm(new FoodMenu_Form("Sashimi",user));
-                            case 1 -> main.showForm(new FoodMenu_Form("Salad",user));
-                            case 2 -> main.showForm(new FoodMenu_Form("MonHapSup",user));
-                            case 3 -> main.showForm(new FoodMenu_Form("Sushi",user));
-                            case 4 -> main.showForm(new FoodMenu_Form("KhaiVi",user));
-                            case 5 -> main.showForm(new FoodMenu_Form("ComCuon",user));
-                            default -> {
-                            }
-                        }
-                    }
-                    case 1 -> {
-                        switch (subMenuIndex) {
-                            case 0 -> main.showForm(new TableMenu_Form("Tang 1",user));
-                            case 1 -> main.showForm(new TableMenu_Form("Tang 2",user));
-                            case 2 -> main.showForm(new TableMenu_Form("Tang 3",user));
-                            default -> {
-                            }
-                        }
-                    }
-                    case 2 -> main.showForm(new AboutUs_Form());
-                    case 6 -> main.showForm(new AccountC_Form(user));
-                    case 7 -> {
-                        main.showForm(new Voucher_Form(user));
-                    }
-                    case 8 -> {
-                        main.showForm(new Bill_Form(user));
-                    }
-                    case 9 -> {
-                        dispose();
-                        Main_LoginAndRegister.main();
-                    }
-                    default -> {
-                    }
-                }
-            }
-        });
+        menu = new Menu();
+        main = new MainForm();
+        menu.addEvent((menuIndex, subMenuIndex) -> handleMenuSelection(menuIndex, subMenuIndex));
         menu.initMenuItem();
-        bg.add(menu,"w 265!, spany 2"); //Span Y 2cell
+        bg.add(menu,"w 265!, spany 2"); //Span Y 2 cells
         bg.add(main,"w 100%, h 100%");
-        //Form mặc định lúc đăng nhập
-        main.showForm(new TableMenu_Form("Tang 1",user));
+        // Form mặc định lúc đăng nhập
+        main.showForm(new TableMenu_Form("Tang 1", user));
     }
-  
+
+
+    private void handleMenuSelection(int menuIndex, int subMenuIndex) {
+        switch (menuIndex) {
+            case 0 -> handleFoodMenuSelection(subMenuIndex);
+            case 1 -> handleTableMenuSelection(subMenuIndex);
+            case 2 -> main.showForm(new Suggested_dishes("Phổ biến", user));
+            case 3 -> main.showForm(new AboutUs_Form());
+            case 7 -> main.showForm(new AccountC_Form(user));
+            case 8 -> main.showForm(new Voucher_Form(user));
+            case 9 -> main.showForm(new Bill_Form(user));
+            case 10 -> {
+                dispose();
+                Main_LoginAndRegister.main();
+            }
+            default -> {
+            }
+        }
+    }
+
+    private void handleFoodMenuSelection(int subMenuIndex) {
+        String[] dishes = {"Sashimi", "Salad", "MonHapSup", "Sushi", "KhaiVi", "ComCuon"};
+        if (subMenuIndex >= 0 && subMenuIndex < dishes.length) {
+            main.showForm(new FoodMenu_Form(dishes[subMenuIndex], user));
+        }
+    }
+
+    private void handleTableMenuSelection(int subMenuIndex) {
+        String[] floors = {"Tang 1", "Tang 2", "Tang 3"};
+        if (subMenuIndex >= 0 && subMenuIndex < floors.length) {
+            main.showForm(new TableMenu_Form(floors[subMenuIndex], user));
+        }
+    }
+
+
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

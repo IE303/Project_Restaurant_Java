@@ -48,13 +48,7 @@ public class ModelMonAn {
     public String getState() {
         return state;
     }
-        public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
+    
 
     public ModelMonAn() {
     }
@@ -75,19 +69,12 @@ public class ModelMonAn {
         this.type = type;
         this.state=state;
     }
-     public ModelMonAn(int id, String title, int value, String type, String state, String imageUrl) {
-        this.id = id;
-        this.title = title;
-        this.value = value;
-        this.type = type;
-        this.state = state;
-        this.imageUrl = imageUrl;
-    }
+    
     private Icon icon;  //Hình ảnh
     private int id;
     private String title; //Tên món ăn 
     private int value; //Đơn giá
     String type;       //Loại món ăn trong 12 loại
     String state;      //Trạng thái của món ăn (Đang/Ngừng Kinh Doanh)
-    private String imageUrl;
+
 }

@@ -23,10 +23,10 @@ public class AccountC_Form extends javax.swing.JPanel {
     private Icon show;
     private char def;
     private MS_ChangePassword changepass;
+
     public AccountC_Form() {
         service = new ServiceCustomer();
         initComponents();
-
     }
 
     public AccountC_Form(ModelNguoiDung user) {
@@ -44,18 +44,15 @@ public class AccountC_Form extends javax.swing.JPanel {
         initUser_information();
         initCustomer_information();
         txtmatkhau.addMouseListener(new MouseAdapter() {
-         
             public void mouseClicked(MouseEvent e) {
                 if (txtmatkhau.getSuffixIcon().equals(hide)) {
                     txtmatkhau.setSuffixIcon(show);
                     txtmatkhau.setEchoChar((char) 0);
-
                 } else {
                     txtmatkhau.setSuffixIcon(hide);
                     txtmatkhau.setEchoChar(def);
                 }
             }
-
         });
     }
 
@@ -128,6 +125,11 @@ public class AccountC_Form extends javax.swing.JPanel {
         txtmaKH.setForeground(new java.awt.Color(93, 98, 101));
         txtmaKH.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtmaKH.setFont(new java.awt.Font("sansserif", 0, 16)); // NOI18N
+        txtmaKH.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtmaKHActionPerformed(evt);
+            }
+        });
 
         titleKH.setBackground(new java.awt.Color(255, 255, 255));
         titleKH.setFont(new java.awt.Font("Segoe UI", 0, 22)); // NOI18N
@@ -365,6 +367,10 @@ public class AccountC_Form extends javax.swing.JPanel {
         changepass.ChangePassword(user);
         txtmatkhau.setText(user.getPassword());
     }//GEN-LAST:event_cmdDMKActionPerformed
+
+    private void txtmaKHActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtmaKHActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtmaKHActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
+ */
 package RTDRestaurant.View.Form.Customer_Form;
 
 import RTDRestaurant.Controller.Service.ServiceCustomer;
@@ -13,143 +17,140 @@ import RTDRestaurant.View.Swing.CustomScrollBar.ScrollBarCustom;
 import RTDRestaurant.View.Swing.WrapLayout;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-
-
-public class FoodMenu_Form extends javax.swing.JPanel {
-
-    private final String type;
+public class Suggested_dishes extends javax.swing.JPanel {
     private final ServiceCustomer service;
+    private List<ModelMonAn> recommendedDishes;
+    private final String type;
     private ArrayList<ModelMonAn> list;
     private final ModelNguoiDung user;
     private ModelKhachHang customer;
-    private ModelHoaDon HoaDon;
+    private ModelHoaDon hoaDon;
     private final MS_Warning warning;
-    private MS_PayBill obj;
+    private final MS_PayBill obj;
 
-    public FoodMenu_Form(String type, ModelNguoiDung user) {
+    public Suggested_dishes(String type, ModelNguoiDung user) {
         this.type = type;
         this.user = user;
-        service = new ServiceCustomer();
-        warning = new MS_Warning(Main_Customer_Frame.getFrames()[0], true);
-        obj = new MS_PayBill(Main_Customer_Frame.getFrames()[0], true);
-        initComponents();    
+        this.service = new ServiceCustomer();
+        this.warning = new MS_Warning(Main_Customer_Frame.getFrames()[0], true);
+        this.obj = new MS_PayBill(Main_Customer_Frame.getFrames()[0], true);
+        this.list = new ArrayList<>();  // Khởi tạo list
+        initComponents();
         init();
-        //Kiểm tra Khách hàng đã đặt bàn trước khi gọi món hay chưa
-        if (HoaDon == null) {
-            warning.WarningBook();
-        } else {
-            txtTableName.setText(HoaDon.getIdBan() + "");
-        }
-        
+        loadDataAsync();
     }
 
-    public void init() {
+    private void init() {
         try {
             panel.setLayout(new WrapLayout(WrapLayout.LEADING, 20, 20));
             txtSearch.setHint("Tìm kiếm món ăn . . .");
             jScrollPane1.setVerticalScrollBar(new ScrollBarCustom());
+
+            // Lấy thông tin khách hàng từ user
             customer = service.getCustomer(user.getUserID());
-            
-            //Tìm thông tin Hóa Đơn mà Khách Hàng vừa tạo
-            HoaDon = service.FindHoaDon(customer);
-            
-            //Thêm data cho Menu
-            initMenuFood();
-            
-            
-            //Set Data cho Tiêu đề Menu
-            switch (type) {
-                case "Sashimi" -> {
-                    lbTitle.setText("Menu/" + type + "  - さしみ");
-                    lbTitle.setIcon(new ImageIcon(getClass().getResource("/Icons/MenuBar/aries.png")));
-                }
-                case "Salad" -> {
-                    lbTitle.setText("Menu/" + type + " - サラダ");
-                    lbTitle.setIcon(new ImageIcon(getClass().getResource("/Icons/MenuBar/taurus.png")));
-                }
-                case "MonHapSup" -> {
-                    lbTitle.setText("Menu/" + type);
-                    lbTitle.setIcon(new ImageIcon(getClass().getResource("/Icons/MenuBar/gemini.png")));
-                }
-                case "Sushi" -> {
-                    lbTitle.setText("Menu/" + type + "  - すし");
-                    lbTitle.setIcon(new ImageIcon(getClass().getResource("/Icons/MenuBar/cancer.png")));
-                }
-                case "KhaiVi" -> {
-                    lbTitle.setText("Menu/" + type + " - オードブル");
-                    lbTitle.setIcon(new ImageIcon(getClass().getResource("/Icons/MenuBar/leo.png")));
-                }
-                case "ComCuon" -> {
-                    lbTitle.setText("Menu/" + type + " - まきずし");
-                    lbTitle.setIcon(new ImageIcon(getClass().getResource("/Icons/MenuBar/virgo.png")));
-                }
-                default -> {
-                }
+            if (customer == null) {
+                System.out.println("Customer not found for user ID: " + user.getUserID());
+                warning.WarningCustomerNotFound();
+                return;
             }
-            
-            
+
+            // Tìm thông tin Hóa Đơn mà Khách Hàng vừa tạo
+            hoaDon = service.FindHoaDon(customer);
+
+            // Thêm data cho Menu
+            initMenu();
+
         } catch (SQLException ex) {
-            Logger.getLogger(FoodMenu_Form.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Suggested_dishes.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-    public void initMenuFood() {
-        try {
-            String orderBy = "Tên A->Z"; // Example, set this based on your requirement
-            list = service.MenuFood(type, orderBy); // Now providing both required parameters
-            panel.removeAll();  // Remove old components before adding new ones
-            for (ModelMonAn data : list) {
-                panel.add(new CardMonAn(data, HoaDon));
-            }
-            panel.revalidate();  // Refresh the UI
-            panel.repaint();
-        } catch (SQLException ex) {
-            Logger.getLogger(FoodMenu_Form.class.getName()).log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải menu: " + ex.getMessage(), "Lỗi Database", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-
-
-    public void searchFood(String txt) {
+    private void loadDataAsync() {
         SwingUtilities.invokeLater(() -> {
-            panel.removeAll();
-            for (ModelMonAn data : list) {
-                if (data.getTitle().toLowerCase().contains(txt.toLowerCase())) {
-                    panel.add(new CardMonAn(data, HoaDon));
+            try {
+                customer = service.getCustomer(user.getUserID());
+                if (customer == null) {
+                    warning.WarningCustomerNotFound();
+                    return;
                 }
+                hoaDon = service.FindHoaDon(customer);
+                loadRecommendedDishes();
+            } catch (SQLException ex) {
+                Logger.getLogger(Suggested_dishes.class.getName()).log(Level.SEVERE, null, ex);
             }
-            panel.revalidate();
-            panel.repaint();
         });
     }
 
+    private void loadRecommendedDishes() throws SQLException {
+        recommendedDishes = service.getRecommendedDishes(user);
+        updateDishPanel(recommendedDishes);
+    }
+
+    private void updateDishPanel(List<ModelMonAn> dishes) {
+        panel.removeAll();
+        for (ModelMonAn dish : dishes) {
+            CardMonAn card = new CardMonAn(dish, hoaDon);
+            panel.add(card);
+        }
+        panel.revalidate();
+        panel.repaint();
+    }
+    
+    private void initMenu() {
+        //panel.setLayout(new WrapLayout()); // Use WrapLayout for displaying dish cards
+        try {
+            recommendedDishes = service.getRecommendedDishes(user);
+            panel.removeAll();
+            for (ModelMonAn dish : recommendedDishes) {
+                CardMonAn card = new CardMonAn(dish, hoaDon); // Pass hoaDon to CardMonAn constructor
+                panel.add(card);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Suggested_dishes.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        panel.revalidate();
+        panel.repaint();
+    }
+
+    public void searchFood(String txt) {
+        SwingUtilities.invokeLater(() -> {
+            if (list != null) {  // Kiểm tra list có null không
+                panel.removeAll();
+                for (ModelMonAn data : list) {
+                    if (data.getTitle().toLowerCase().contains(txt.toLowerCase())) {
+                        panel.add(new CardMonAn(data, hoaDon));
+                    }
+                }
+                panel.revalidate();
+                panel.repaint();
+            }
+        });
+    }
 
     public void initMenuFoodOrderby(String txt) {
         try {
             list = service.MenuFoodOrder(type, txt);
             panel.removeAll();
             for (ModelMonAn data : list) {
-                panel.add(new CardMonAn(data, HoaDon));
+                panel.add(new CardMonAn(data, hoaDon));
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(FoodMenu_Form.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Suggested_dishes.class.getName()).log(Level.SEVERE, null, ex);
         }
         panel.repaint();
         panel.revalidate();
     }
-
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         panel = new javax.swing.JPanel();
         lbTitle = new javax.swing.JLabel();
@@ -161,30 +162,23 @@ public class FoodMenu_Form extends javax.swing.JPanel {
         txtTableName = new RTDRestaurant.View.Swing.MyTextField();
         jSeparator2 = new javax.swing.JSeparator();
 
-        setBackground(new java.awt.Color(247, 247, 247));
+        setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.LINE_AXIS));
+
+        jPanel1.setBackground(new java.awt.Color(247, 247, 247));
 
         jScrollPane1.setBorder(null);
         jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         panel.setBackground(new java.awt.Color(215, 221, 232));
-
-        javax.swing.GroupLayout panelLayout = new javax.swing.GroupLayout(panel);
-        panel.setLayout(panelLayout);
-        panelLayout.setHorizontalGroup(
-            panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 963, Short.MAX_VALUE)
-        );
-        panelLayout.setVerticalGroup(
-            panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 542, Short.MAX_VALUE)
-        );
-
+        panel.setAutoscrolls(true);
+        panel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        panel.setLayout(new java.awt.BorderLayout());
         jScrollPane1.setViewportView(panel);
 
         lbTitle.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         lbTitle.setForeground(new java.awt.Color(108, 91, 123));
         lbTitle.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/MenuBar/aries.png"))); // NOI18N
-        lbTitle.setText("Menu/Arias - Bạch Dương");
+        lbTitle.setText("Các món ăn có thể bạn sẽ thích");
         lbTitle.setIconTextGap(10);
         lbTitle.setInheritsPopupMenu(false);
 
@@ -241,26 +235,26 @@ public class FoodMenu_Form extends javax.swing.JPanel {
 
         jSeparator2.setBackground(new java.awt.Color(76, 76, 76));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jLabel1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
-                            .addGroup(layout.createSequentialGroup()
+                            .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(lbTitle)
                                 .addGap(559, 559, 559)))
                         .addComponent(orderby, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
+                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(lbTable)
                         .addGap(38, 38, 38)
                         .addComponent(txtTableName, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -269,27 +263,29 @@ public class FoodMenu_Form extends javax.swing.JPanel {
                     .addComponent(jSeparator2))
                 .addContainerGap())
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(lbTitle)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(cmdShowBill, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lbTable, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtTableName, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 1, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(orderby)
                     .addComponent(txtSearch, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 542, Short.MAX_VALUE)
                 .addContainerGap())
         );
+
+        add(jPanel1);
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtSearchMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtSearchMouseEntered
@@ -306,10 +302,10 @@ public class FoodMenu_Form extends javax.swing.JPanel {
 
     private void cmdShowBillActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdShowBillActionPerformed
         try {
-            HoaDon=service.FindHoaDon(customer);
-            obj.showBill(HoaDon);
+            hoaDon = service.FindHoaDon(customer);
+            obj.showBill(hoaDon);
         } catch (SQLException ex) {
-            Logger.getLogger(FoodMenu_Form.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Suggested_dishes.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_cmdShowBillActionPerformed
 
@@ -317,6 +313,7 @@ public class FoodMenu_Form extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private RTDRestaurant.View.Swing.Button cmdShowBill;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JLabel lbTable;

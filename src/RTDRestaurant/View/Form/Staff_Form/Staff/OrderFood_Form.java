@@ -72,7 +72,8 @@ public class OrderFood_Form extends javax.swing.JPanel {
 
     public void initMenuFood(String type) {
         try {
-            list = serviceC.MenuFood(type);
+            String orderBy = "Tên A->Z";  // Tham số thứ hai cho việc sắp xếp
+            list = serviceC.MenuFood(type, orderBy);  // Cung cấp cả hai tham số khi gọi phương thức
             panel.removeAll();
             for (ModelMonAn data : list) {
                 panel.add(new CardMonAn(data, HoaDon));
@@ -83,6 +84,7 @@ public class OrderFood_Form extends javax.swing.JPanel {
         panel.repaint();
         panel.revalidate();
     }
+
 
     public void searchFood(String txt) {
         panel.removeAll();

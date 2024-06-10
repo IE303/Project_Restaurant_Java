@@ -11,18 +11,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.net.URL;
-import java.text.DecimalFormat;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
 import java.text.DecimalFormat;
 
 public class CardMonAn extends javax.swing.JPanel {
@@ -42,22 +30,7 @@ public class CardMonAn extends javax.swing.JPanel {
     public void init() {
         obj = new MS_ConfirmOrderFood(Main_Customer_Frame.getFrames()[0], true);
         setPreferredSize(new Dimension(300, 300));
-//        img.setIcon(data.getIcon());
-        try {
-        String imageUrl = data.getImageUrl();
-        if (imageUrl != null && !imageUrl.isEmpty()) { // Check for null and empty string
-            URL url = new URL(imageUrl);
-            BufferedImage image = ImageIO.read(url);
-            if (image != null) {
-                img.setIcon(new ImageIcon(image));
-            } else {
-                System.err.println("Image is null");
-            }
-        } else {
-            System.err.println("Image URL is null or empty");
-        } } catch (IOException e) {
-        e.printStackTrace();
-    }
+        img.setIcon(data.getIcon());
         lbTitle.setText(data.getTitle());
         DecimalFormat df = new DecimalFormat("##,###,###");
         lbValue.setText(df.format(data.getValue()) + "đ");
